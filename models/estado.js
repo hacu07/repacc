@@ -3,7 +3,9 @@ const mongoose = require("mongoose")
 const estadoSchema = new mongoose.Schema({
     nombre:{
         type: String,
-        required: true
+        required: true,
+        uppercase: true,
+        unique: true 
     },
     tipo:{
         type: Number,
