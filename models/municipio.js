@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const municipioSchema = new mongoose.Schema({
     codigo:{
-        type: Number,
+        type: String,
         required: true
     },
     capital:{
@@ -11,7 +11,9 @@ const municipioSchema = new mongoose.Schema({
     },
     nombre: {
         type: String,
-        required : true
+        required : true,
+        unique: true,
+        uppercase: true
     },
     departamento:{
         type: mongoose.Schema.Types.ObjectId,
@@ -19,7 +21,8 @@ const municipioSchema = new mongoose.Schema({
     },
     estado:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'estado'
+        ref: 'estado',
+        require: true
     },
     date:{
         type: Date,

@@ -4,20 +4,19 @@ const jwt = require('jsonwebtoken')
 const usuarioSchema = new mongoose.Schema({
     qr:{
         type: String,
-        minlength: 6,
-        maxlength: 6,
         required: true,
         unique: true,
         uppercase: true
     },
-    email:{
+    correo:{
         type: String,
         required: true,
         unique: true
     },
     nombre:{
         type: String,
-        required: true
+        required: true,
+        uppercase: true
     },
     contrasena:{
         type: String,
@@ -42,17 +41,11 @@ const usuarioSchema = new mongoose.Schema({
         type: String,
         minlength: 6,
         maxlength: 8,
-        unique: true,
-        required: false
+        default: null
     },
     date:{
         type: Date, 
         default: Date.now
-    },
-    usuaReg:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'usuario',
-        required: true
     },
     rol:{
         type: mongoose.Schema.Types.ObjectId,

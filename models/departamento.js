@@ -2,12 +2,13 @@ const mongoose = require('mongoose')
 
 const departamentoSchema = new mongoose.Schema({
     codigo:{
-        type: Number,
+        type: String,
         required: true
     },
     nombre: {
         type: String,
-        required : true
+        required : true,
+        uppercase: true
     },
     pais:{
         type: mongoose.Schema.Types.ObjectId,
