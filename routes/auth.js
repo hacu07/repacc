@@ -13,7 +13,8 @@ router.post('/login', [
     check('usuario').isString(),                // Si es un correo
     check('contrasena').isString()
 ], async (req, res)=>{
-    // Valida si ocurrio alun error en la validacion
+
+    // Valida si ocurrio alun error en la validacion de parametros
     const errors = validationResult(req);
     if(!errors.isEmpty()){ // encontro errores
         return res.status(422).json(
@@ -40,12 +41,13 @@ router.post('/login', [
     // Genera JWT
     const jwtToken = user.generateJWT()
 
+    user.contrasena = null
+
     res.status(201)
     .header('Authorization',jwtToken)   // envia token en el header en modo clave: valor
-    .send({                             // retorna respuesta con parametros en body
-        _id: user._id,
-        name: user.usuario,
-        email: user.rol
+    .json({                             // retorna respuesta con parametros en body
+        error: false,
+        content: user
     })
 })
 

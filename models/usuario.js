@@ -32,11 +32,7 @@ const usuarioSchema = new mongoose.Schema({
         maxlength: 16,
         required: true,
         unique: true
-    },
-    tyc:{
-        type: Boolean,
-        required: true
-    },
+    },    
     codRecuCon:{
         type: String,
         minlength: 6,

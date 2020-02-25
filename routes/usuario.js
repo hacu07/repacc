@@ -25,13 +25,13 @@ router.get('/', async (req,res)=>{
  *                      METHOD POST
  *********************************************************************** */
 router.post('/registro',[
-    check('correo').isEmail(),
-    check('nombre').isString(),
-    check('contrasena').isString(),
-    check('celular').isString(),
-    check('usuario').isString(),
-    check('tyc').isBoolean()
+    check('correo').trim().isEmail().notEmpty(),
+    check('nombre').trim().isString().notEmpty().isLength({min: 4}),
+    check('contrasena').trim().isString().notEmpty().isLength({min: 4}),
+    check('celular').trim().isString().notEmpty().isLength({min: 6}),
+    check('usuario').trim().isString().notEmpty().isLength({min: 4, max: 16})    
 ],async (req, res) =>{
+
      // Si ocurrio un error en validación de parametros
      const errors = validationResult(req);
 
@@ -52,7 +52,7 @@ router.post('/registro',[
     let objUsuVal = await Usuario.findOne({$or:[{usuario: req.body.usuario},{qr: req.body.usuario}]})
 
     // Si encontro
-    if(objEstado && objRol && req.body.tyc){
+    if(objEstado && objRol){
         if(objUsuVal){
             return res.json({
                 error: true,
@@ -70,26 +70,21 @@ router.post('/registro',[
                 nombre: req.body.nombre,
                 contrasena: hashPassword,
                 celular: req.body.celular,
-                usuario: req.body.usuario,
-                tyc: req.body.tyc,
+                usuario: req.body.usuario,                
                 rol: objRol._id,
                 estado: objEstado._id
             })
 
             try {
                 // guarda en BD
-                const usuSaved = await usuSave.save()
+                const usuSaved = await usuSave.save()                                
+                usuSaved.contrasena = null
 
-                // genera JWT
-                // const jwtToken = usuSaved.generateJWT()
-
-                res.status(201)
-                    //.header('Authorization', jwtToken)
+                res.status(201)                
                     .send({
                         error: false,
                         content: usuSaved
                     })
-
             } catch (e) {
                 return res.json({
                     error: true,
