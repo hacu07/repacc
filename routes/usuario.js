@@ -83,6 +83,7 @@ router.post('/registro',[
                 res.status(201)                
                     .send({
                         error: false,
+                        msj: "Usuario registrado.",
                         content: usuSaved
                     })
             } catch (e) {

@@ -1,6 +1,6 @@
 const express = require('express')
 const Pais = require('../models/pais')
-const Estado = require("../models/estado")
+
 
 // toma la ruta donde se encuentra alojado el archivo y 
 // todos los paths que apunten a este se ejecutan aca
@@ -11,6 +11,28 @@ const { check, validationResult } = require('express-validator');
  *                      METHOD GET
  *********************************************************************** */
 
+ /*
+ * Retorna los estados registrados
+ */
+router.get('/paises', async (req,res)=>{
+    const pais = await Pais.find(null,'_id codigo nombre prefijoTel')
+    
+    let jsonRespuesta = null
+    
+    if(pais.length != 0){
+        jsonRespuesta = {
+            error: false,
+            content: pais
+        }
+    }else{
+        jsonRespuesta = {
+            error: true,
+            msj: "No se logro obtener listado de paises"
+        }
+    }
+
+    res.json(jsonRespuesta)
+})
 
 
  /*****************************************************************************

@@ -1,6 +1,6 @@
 const express = require('express')
-const Departamento = require('../models/departamento')
-const Estado = require("../models/estado")
+const Tipo = require('../models/tipo')
+
 
 // toma la ruta donde se encuentra alojado el archivo y 
 // todos los paths que apunten a este se ejecutan aca
@@ -10,36 +10,17 @@ const { check, validationResult } = require('express-validator');
 /*****************************************************************************
  *                      METHOD GET
  *********************************************************************** */
-router.get('/:idpais', async (req,res)=>{
-    // Consulta los departamentos segun el pais enviado por parametro
-    Departamento.find({pais: req.params.idpais},'_id codigo nombre', (err,docs)=>{
-        // callback 
-        if(err) return res.json({error: true, msj: "Error al obtener departamentos"})
 
-        if(docs.length == 0){ // No encontro resultados
-            return res.json(
-                {                
-                    error: true,
-                    msj: "No se encontraron resultados"
-                }
-            );
-        }
-        // Si encontro los estados por el tipo
-        res.json({
-            error: false,              
-            content: docs
-        })
-    }).populate('pais estado')
-})
 
 
  /*****************************************************************************
  *                      METHOD POST
  *********************************************************************** */
 router.post('/',
-    [check('codigo').isString(),
-    check('nombre').isString(),
-    check('pais').isMongoId()],
+    [check('nombre').isString().notEmpty(),
+    check('descripcion').isString().notEmpty(),
+    check('tipo').isNumeric(),
+    ],
     async (req, res)=>{
 
     // Si ocurrio un error en validación de parametros
@@ -68,19 +49,20 @@ router.post('/',
 
         // No ocurrio error al buscar estado 
         if(objEstado){
-            const objDpto = new Departamento({
+            const objMuni = new Municipio({
                 codigo: req.body.codigo,
                 nombre: req.body.nombre,
-                pais: req.body.pais,
-                estado: objEstado._id
+                departamento: req.body.departamento,
+                estado: objEstado._id,
+                capital: req.body.capital
             })
 
             //guarda en BD
             try {
-                const objDptoSave =  await objDpto.save()
+                const objMuniSave =  await objMuni.save()
 
                 // Si guardo...
-                if(objDptoSave){
+                if(objMuniSave){
                     res.json({
                         error: false,
                         content: objDptoSave
@@ -88,19 +70,20 @@ router.post('/',
                 }else{
                     res.json({
                         error: true,
-                        msj: "No se logró registrar el departamento."
+                        msj: "No se logró registrar el municipio."
                     })    
                 }
             } catch (exp) {
                 res.json({
                     error: true,
-                    msj: "Error al registrar el departamento."
+                    msj: "Error al registrar el municipio.",
+                    errors: exp
                 })
             }
         }else{
             res.json({
                 error: true,
-                msj: "No se logro registrar departamento, estado no encontrado."
+                msj: "No se logro registrar municipio, estado no encontrado."
             })
         }
     })

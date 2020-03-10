@@ -49,10 +49,7 @@ const usuarioSchema = new mongoose.Schema({
         required: true
     },
     foto: String,
-    tipoSangre:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'tipo'
-    },
+    tipoSangre: String,
     munNotif:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'municipio'

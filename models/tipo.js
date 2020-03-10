@@ -20,7 +20,7 @@ const tipoSchema = new mongoose.Schema({
     date:{
         type: Date,
         default: Date.now
-    }    
+    } 
 })
 
 const Tipo = mongoose.model('tipo', tipoSchema)

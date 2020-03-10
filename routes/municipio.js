@@ -10,7 +10,32 @@ const { check, validationResult } = require('express-validator');
 /*****************************************************************************
  *                      METHOD GET
  *********************************************************************** */
+router.get('/:iddepartamento', async (req,res)=>{
+    // Consulta los departamentos segun el pais enviado por parametro
+    Municipio.find({departamento: req.params.iddepartamento},'_id capital codigo nombre', (err,docs)=>{
+        // callback 
+        if(err) return res.json({error: true, msj: "Error al obtener municipios"})
 
+        if(docs.length == 0){ // No encontro resultados
+            return res.json(
+                {                
+                    error: true,
+                    msj: "No se encontraron resultados"
+                }
+            );
+        }
+        // Si encontro los estados por el tipo
+        res.json({
+            error: false,              
+            content: docs
+        })
+    }).populate([
+        {
+            path: 'departamento',
+            populate: {path: 'pais estado'}
+        }
+    ])
+})
 
 
  /*****************************************************************************
