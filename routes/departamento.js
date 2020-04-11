@@ -29,7 +29,15 @@ router.get('/:idpais', async (req,res)=>{
             error: false,              
             content: docs
         })
-    }).populate('pais estado')
+    }).populate([
+        {
+            path: 'pais',
+            populate: { path : 'estado' } 
+        },
+        {
+            path : 'estado'
+        }
+    ])
 })
 
 

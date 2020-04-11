@@ -2,7 +2,6 @@ const bcrypt = require('bcrypt')
 const express = require('express')
 const Usuario = require('../models/usuario')
 const Estado = require('../models/estado')
-const Municipio = require('../models/municipio')
 const Rol = require('../models/rol')
 // toma la ruta donde se encuentra alojado el archivo y 
 // todos los paths que apunten a este se ejecutan aca
@@ -13,11 +12,70 @@ const { check, validationResult } = require('express-validator');
  *                      METHOD GET
  *********************************************************************** */
 
- /* Obtiene datos de todos los usuarios registrados
-    OJOOO FALTA MIDDLEWARE PARA VALIDAR QUIEN SOLICITA
+ /* Busca segun "usuario" enviado
  */
-router.get('/', async (req,res)=>{
-    
+router.get('/buscar/:usuario',[
+    check('usuario').trim().isString().notEmpty().isLength({min: 4, max: 16})
+], async (req,res)=>{
+    // Si ocurrio un error en validación de parametros
+    const errors = validationResult(req);
+
+    if(!errors.isEmpty()){ // encontró errores
+        return res.status(422).json(
+            {                
+                error: true,
+                msj: "Error en datos enviados.",
+                errors: errors.array()
+            }
+        );
+    }
+    //No encontro errores en los parametros
+
+    // Consulta el usuario
+    const usuario = await Usuario.findOne({usuario: req.params.usuario})
+                    .populate([
+                        {
+                            path: 'rol',
+                            populate:{path: 'estado'}
+                        },
+                        {
+                            path: 'estado'
+                        },
+                        {
+                            path:'munNotif',
+                            populate : [
+                                {
+                                    path: 'departamento',
+                                    populate:  [
+                                        {                                
+                                            path: 'pais',
+                                            populate: 'estado'
+                                        },
+                                        {
+                                            path: 'estado'
+                                        }
+                                    ]
+                                },
+                                {
+                                    path: 'estado'
+                                }
+                            ]
+                        }
+                    ])    
+    // Encontro usuario
+    if(usuario){
+        res.status(201)                
+            .send({
+                error: false,                        
+                content: usuario
+            })
+    }else{
+        res.send({
+                error: true,                        
+                msj: "Usuario no encontrado"
+            })
+    }
+
 })
 
 
@@ -101,6 +159,93 @@ router.post('/registro',[
             msj: "No se logró registrar el usuario."
         })
     }
+})
+
+/*****************************************************************************
+ *                      METHOD PUT
+ *********************************************************************** */
+router.put('/edicion',[
+    check('_id').isMongoId(),
+    check('correo').trim().isEmail().notEmpty(),
+    check('nombre').trim().isString().notEmpty().isLength({min: 4}),
+    check('celular').trim().isString().notEmpty().isLength({min: 6}),
+    check('usuario').trim().isString().notEmpty().isLength({min: 4, max: 16}),
+    check('recibirNotif').isBoolean(),
+    check('tipoSangre').trim().isString().isLength({min:2, max: 3})    
+],async (req, res) =>{
+    // Si ocurrio un error en validación de parametros
+    const errors = validationResult(req);
+
+    if(!errors.isEmpty()){ // encontró errores
+        return res.status(422).json(
+            {                
+                error: true,
+                msj: "Error en datos enviados.",
+                errors: errors.array()
+            }
+        );
+    }
+   //No encontro errores en los parametros   
+    
+   // Actualiza 
+   const usuAct = await Usuario.findByIdAndUpdate(req.body._id, {
+        // Actualiza datos
+        correo: req.body.correo,
+        nombre: req.body.nombre,
+        celular: req.body.celular,
+        usuario: req.body.usuario,
+        qr: req.body.usuario,
+        recibirNotif: req.body.recibirNotif,
+        tipoSangre: req.body.tipoSangre,
+        foto: req.body.foto,
+        munNotif: req.body.munNotif._id
+   },{
+       // Devuelve el documento con datos modificados
+       new: true
+   }).populate([
+    {
+        path: 'rol',
+        populate:{path: 'estado'}
+    },
+    {
+        path: 'estado'
+    },
+    {
+        path:'munNotif',
+        populate : [
+            {
+                path: 'departamento',
+                populate:  [
+                    {                                
+                        path: 'pais',
+                        populate: 'estado'
+                    },
+                    {
+                        path: 'estado'
+                    }
+                ]
+            },
+            {
+                path: 'estado'
+            }
+        ]
+    }
+]) 
+
+   if(!usuAct){
+        return res.json({
+            error: true,
+            msj: "No se logro actualizar"
+        })
+   }
+
+   usuAct.contrasena = null
+
+   res.json({
+       error: false,
+       msj: "Actualización correcta.",
+       content: usuAct
+   })
 })
 
 

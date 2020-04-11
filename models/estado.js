@@ -1,6 +1,12 @@
 const mongoose = require("mongoose")
 
 const estadoSchema = new mongoose.Schema({
+    codigo:{
+        type: String,
+        required: true,
+        unique: true,
+        uppercase: true
+    },
     nombre:{
         type: String,
         required: true,

@@ -32,7 +32,15 @@ router.get('/:iddepartamento', async (req,res)=>{
     }).populate([
         {
             path: 'departamento',
-            populate: {path: 'pais estado'}
+            populate: [
+                {
+                    path: 'pais',
+                    populate: {path: 'estado'}
+                },
+                {
+                    path: 'estado'
+                }
+            ]
         }
     ])
 })

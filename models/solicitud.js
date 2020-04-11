@@ -14,7 +14,7 @@ const solicitudSchema = new mongoose.Schema({
         required: true
     },
     estado:{
-        type:mongoose.Schema.type.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         ref:'estado',
         required:true
     },

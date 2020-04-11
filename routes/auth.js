@@ -47,10 +47,15 @@ router.post('/login', [
                             populate : [
                                 {
                                     path: 'departamento',
-                                    populate: {
-                                        path: 'pais',
-                                        populate: 'estado'
-                                    }
+                                    populate: [
+                                        {                                
+                                            path: 'pais',
+                                            populate: 'estado'
+                                        },
+                                        {
+                                            path: 'estado'
+                                        }
+                                    ]
                                 },
                                 {
                                     path: 'estado'

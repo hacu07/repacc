@@ -10,6 +10,8 @@ const departamento = require("./routes/departamento")
 const municipio = require("./routes/municipio")
 const usuario = require("./routes/usuario")
 const auth = require("./routes/auth")
+const solicitud = require("./routes/solicitud")
+const contacto = require("./routes/contacto")
 
 //Para usar los datos de tipo JSON -- IMPORTANTE
 app.use(express.json());
@@ -21,6 +23,8 @@ app.use('/api/pais/', pais)
 app.use('/api/municipio/', municipio)
 app.use('/api/usuario/', usuario)
 app.use('/api/usuario/', auth)
+app.use('/api/solicitud/', solicitud)
+app.use('/api/contacto/', contacto)
 
 const port = process.env.PORT || 3004
 

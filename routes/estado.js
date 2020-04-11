@@ -55,7 +55,8 @@ router.get('/:tipo', async (req,res)=>{
  * NOTA: FALTA AGREGAR MIDDLEWARE DE VALIDACION DE REGISTRO SEGUN USUARIO-PERMISO
  */
 router.post('/',
-    [check('nombre').isString(), 
+    [check('codigo').isString().notEmpty(),
+    check('nombre').isString(), 
     check('descripcion').isString(), 
     check('tipo').isNumeric()],
     async (req,res)=>{
@@ -76,6 +77,7 @@ router.post('/',
 
     // Objeto con datos tomados de los parametros enviados por el cliente
     const objEstado = new Estado({
+        codigo: req.body.codigo.trim(),
         nombre: req.body.nombre.trim(),
         tipo: req.body.tipo,
         descripcion: req.body.descripcion.trim()
