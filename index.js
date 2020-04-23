@@ -12,6 +12,10 @@ const usuario = require("./routes/usuario")
 const auth = require("./routes/auth")
 const solicitud = require("./routes/solicitud")
 const contacto = require("./routes/contacto")
+const vehiculo = require("./routes/vehiculo")
+const marca = require("./routes/marca")
+const modelo = require("./routes/modelo")
+const tipo = require("./routes/tipo")
 
 //Para usar los datos de tipo JSON -- IMPORTANTE
 app.use(express.json());
@@ -25,6 +29,12 @@ app.use('/api/usuario/', usuario)
 app.use('/api/usuario/', auth)
 app.use('/api/solicitud/', solicitud)
 app.use('/api/contacto/', contacto)
+app.use('/api/vehiculo/', vehiculo)
+app.use('/api/marca/', marca)
+app.use('/api/modelo/', modelo)
+app.use('/api/tipo/', tipo)
+
+process.env.TZ = 'America/Bogota' 
 
 const port = process.env.PORT || 3004
 

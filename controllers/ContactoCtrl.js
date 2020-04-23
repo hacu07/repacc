@@ -1,4 +1,24 @@
 const Contacto = require("../models/contacto")
+const Usuario = require("../models/usuario")
+const EstadoCtrl = require("./EstadoCtrl.js")
+const Util = require("./Util.js")
+/*
+    Busca conctactos segun el nombre de usuario enviado
+    retorna lista de contactos que se asemenjan al username enviado
+*/
+async function findContacts(username){
+    var contactos = null
+
+    //Obtiene estado de usuarios validos
+    const estado = await EstadoCtrl.buscarEstado(Util.ESTADO_CODIGO_ACTIVO)
+
+    if(estado != null){
+        contactos = await Usuario.find({usuario: eval("/"+username+"/"), estado: estado._id},"_id nombre usuario foto")
+    }
+
+    return contactos
+}
+
 
 /* Obtiene contactos del usuario enviado por parametro */
 async function buscarContactos(idUsuario){
@@ -70,3 +90,4 @@ async function registrar(usuEnviaSol, usuAceptaSol){
 
 exports.buscarContactos = buscarContactos
 exports.registrar = registrar
+exports.findContacts = findContacts

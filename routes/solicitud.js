@@ -4,7 +4,7 @@ const Solicitud = require('../models/solicitud')
 const Contacto = require("../models/contacto")
 const EstadoCtrl = require('../controllers/EstadoCtrl')
 const SolicitudCtrl = require('../controllers/SolicitudCtrl')
-const ContactoCtrl = require('../controllers/ContactoCrl')
+const ContactoCtrl = require('../controllers/ContactoCtrl')
 const Util = require('../controllers/Util')
 // toma la ruta donde se encuentra alojado el archivo y 
 // todos los paths que apunten a este se ejecutan aca

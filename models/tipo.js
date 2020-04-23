@@ -5,6 +5,11 @@ const tipoSchema = new mongoose.Schema({
         type: Number,
         required : true
     },
+    codigo:{
+        type: String, 
+        required: true,
+        unique: true
+    },
     nombre:{
         type: String,
         required : true

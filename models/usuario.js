@@ -31,7 +31,8 @@ const usuarioSchema = new mongoose.Schema({
         minlength: 4,
         maxlength: 16,
         required: true,
-        unique: true
+        unique: true,
+        lowercase: true
     },    
     codRecuCon:{
         type: String,

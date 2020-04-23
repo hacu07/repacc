@@ -4,6 +4,8 @@ const {check , validationResult} = require('express-validator');
  * Funciones utiles a nivel general
  */
 
+ // Constantes usadas a nivel general
+ const ESTADO_CODIGO_ACTIVO = "T1A"
 
  /**
   * Valida si ocurrio error al evaluar los parametros enviados
@@ -56,3 +58,4 @@ function msjError(res, msjErr){
 exports.validarErrores = validarErrores 
 exports.msjError = msjError
 exports.msjSuccess = msjSuccess
+exports.ESTADO_CODIGO_ACTIVO = ESTADO_CODIGO_ACTIVO
