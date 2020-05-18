@@ -9,7 +9,7 @@ const agenteSchema = new mongoose.Schema({
     // Si se encuentra disponible o no
     estado:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'estadp',
+        ref: 'estado',
         required: true
     },
     // municipio donde el agente presta el servicio

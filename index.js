@@ -16,6 +16,8 @@ const vehiculo = require("./routes/vehiculo")
 const marca = require("./routes/marca")
 const modelo = require("./routes/modelo")
 const tipo = require("./routes/tipo")
+const reporte = require("./routes/reporte")
+const servicio = require("./routes/servicio")
 
 //Para usar los datos de tipo JSON -- IMPORTANTE
 app.use(express.json());
@@ -33,8 +35,10 @@ app.use('/api/vehiculo/', vehiculo)
 app.use('/api/marca/', marca)
 app.use('/api/modelo/', modelo)
 app.use('/api/tipo/', tipo)
+app.use('/api/reporte/', reporte)
+app.use('/api/servicio/', servicio)
 
-process.env.TZ = 'America/Bogota' 
+
 
 const port = process.env.PORT || 3004
 

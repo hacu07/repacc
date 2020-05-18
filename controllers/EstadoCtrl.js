@@ -13,4 +13,17 @@ async function buscarEstado(codigo){
     return estado;
 }
 
+
+/***********************************************************
+ * Retorna documento del estado segun codigo si lo encontro
+ ********************************************************** */
+async function findById(idEstado){
+    var estado = null;
+
+    estado = await Estado.findById({_id: idEstado}, '_id codigo nombre descripcion')
+    
+    return estado;
+}
+
 exports.buscarEstado = buscarEstado
+exports.findById = findById

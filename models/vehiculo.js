@@ -21,8 +21,10 @@ const vehiculoSchema = new mongoose.Schema({
     placa:{
         unique: true,
         type: String,
-        required: true
+        required: true,
+        uppercase: true
     },
+    foto: String,
     date: {
         type:Date,
         default: Date.now

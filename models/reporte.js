@@ -5,15 +5,17 @@ const reporteSchema = new mongoose.Schema({
         type: String,
         unique: true,
         required: true
-    }, 
-    latitud: {
+    },
+    placas:{
+        type: Array,
+        required: true
+    },
+    latlong:{
         type: String,
         required: true
     },
-    longitud: {
-        type: String,
-        required: true
-    },
+    latitud: Number,
+    longitud: Number,
     direccion:String,
     descripcion:{
         type: String,
@@ -43,16 +45,19 @@ const reporteSchema = new mongoose.Schema({
         ref: 'municipio',
         required: true
     },
+    esFalAlarm: Boolean,
     // Agente que reporto false alarma
-    agenteFalAlar:{
+    agenteFalAlarm:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'agente'
     },
+    // Fecha de reporte de falsa alarma
     fechaFalAlar:Date,
     date:{
         type: Date,
         default: Date.now
-    }
+    },
+    serviciosSolicitados: Array
 })
 
 const Reporte = mongoose.model("reporte", reporteSchema)

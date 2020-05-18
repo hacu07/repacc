@@ -18,8 +18,12 @@ const entidadSchema = new mongoose.Schema({
         ref: 'municipio',
         required: true
     },
-    latitud: String,
-    longitud: String,
+    latlong: {
+        type: String,
+        required: true
+    },
+    latitud: Number,
+    longitud: Number,
     estado:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'estado',

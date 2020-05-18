@@ -7,6 +7,7 @@ const servicioSchema = new mongoose.Schema({
         ref: 'reporte',
         required: true
     },
+    // tipo servicio
     tipo:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'tipo',
