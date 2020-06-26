@@ -46,7 +46,7 @@ const reporteSchema = new mongoose.Schema({
         required: true
     },
     esFalAlarm: Boolean,
-    // Agente que reporto false alarma
+    // Agente que reporto falsa alarma
     agenteFalAlarm:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'agente'

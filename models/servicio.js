@@ -18,6 +18,9 @@ const servicioSchema = new mongoose.Schema({
         ref: 'estado',
         required: true
     }
+},
+{
+    timestamps: true
 })
 
 const Servicio = mongoose.model('servicio', servicioSchema)

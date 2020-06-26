@@ -1,6 +1,27 @@
 //Agentes que atienden el llamado en los reportes
 const mongoose = require("mongoose")
 
+//subdomento de detalle
+const detalle = new mongoose.Schema({
+    estado: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'estado', 
+        required: true
+    },
+    latitud: {
+        type: Number,
+        default: 0
+    },
+    longitud: {
+        type: Number,
+        default: 0
+    },
+    date: {
+        type:Date,
+        default: Date.now
+    }
+})
+
 const agenRepoSchema = new mongoose.Schema({
     servicio:{
         type: mongoose.Schema.Types.ObjectId,
@@ -14,9 +35,13 @@ const agenRepoSchema = new mongoose.Schema({
     },
     // https://stackoverflow.com/questions/19695058/how-to-define-object-in-array-in-mongoose-schema-correctly-with-2d-geo-index
     // documentacion para insertar el detalle
-    detalle:{ 
-        type : Array, 
-        default : [] 
+    detalle:[detalle],
+    // Si se encuentra activo el servicio o no
+    // asi mismo se muestra como notificacion al agente
+    estado:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'estado',
+        required: true
     },
     descriptraslado: String,
     //Unidad medica (entidad) a la que fue remitido el paciente

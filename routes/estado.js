@@ -58,7 +58,9 @@ router.post('/',
     [check('codigo').isString().notEmpty(),
     check('nombre').isString(), 
     check('descripcion').isString(), 
-    check('tipo').isNumeric()],
+    check('tipo').isNumeric(),
+    check('orden').isNumeric()
+    ],
     async (req,res)=>{
 
     // Si ocurrio un error en validación de parametros
@@ -80,6 +82,7 @@ router.post('/',
         codigo: req.body.codigo.trim(),
         nombre: req.body.nombre.trim(),
         tipo: req.body.tipo,
+        ordern: req.body.orden,
         descripcion: req.body.descripcion.trim()
     })
     // guarda en la bd 
@@ -104,9 +107,11 @@ router.post('/',
  *********************************************************************** */
 router.put('/:id',
     // Validacion de parametros
-    [check('nombre').isString(), 
-    check('descripcion').isString(), 
-    check('tipo').isNumeric()], async (req,res)=>{
+    [   check('nombre').isString(), 
+        check('descripcion').isString(), 
+        check('tipo').isNumeric(),
+        check('orden').isNumeric()
+    ], async (req,res)=>{
 
         // Si ocurrio un error en validación de parametros
         const errors = validationResult(req);
@@ -130,6 +135,7 @@ router.put('/:id',
                 // campos a actualizar
                 nombre: req.body.nombre.trim(),
                 tipo: req.body.tipo,
+                orden: req.body.orden,
                 descripcion: req.body.descripcion.trim()
             },{
                 // Devuelve el documento con datos modificados

@@ -10,6 +10,27 @@ const ReporteCtrl = require("../controllers/ReporteCtrl")
  *******************************************************/
 
 /*
+    Retorna los reportes asignados a un agente de transito
+ */
+router.get(
+    '/reportes/:_idAgente',
+    [
+        check('_idAgente').isMongoId()
+    ],
+    async (req,res) =>{
+        Util.validarErrores(req,res)
+
+        let reportes = await ReporteCtrl.buscarReporteAgente(req.params._idAgente)
+
+        if(reportes != null){
+            Util.msjSuccess(res,"Reportes encontrados.", reportes)
+        }else{
+            Util.msjError(res,"No se encontraron reportes.")
+        }
+    }
+)
+
+/*
     Retorna datos basicos de los ultimos 21 reportes segun 
     el municipio indicado
     Autor: HAROLDC
@@ -77,9 +98,7 @@ router.post(
         check('municipio').isString().notEmpty(),
         check('placas').isArray().notEmpty()
     ],
-    async (req,res)=>{
-        console.log(req.body.municipio)
-        console.log(req.body.departamento)
+    async (req,res)=>{        
         Util.validarErrores(req,res)
 
         const objReporte = await ReporteCtrl.registroReporte(req.body)
@@ -90,5 +109,29 @@ router.post(
             Util.msjError(res,"No se logró reportar.")
         }
     })
+
+/*************************************************
+ * Usuario de rol AGENTE actualiza el estado del reporte.
+ * HAROLDC 31/05/2020
+ */
+router.put(
+    '/estado/',
+    [
+        check('_id').isMongoId(),
+        check('agenteFalAlarm').isMongoId(),
+        check('esFalAlarm').isBoolean(),
+        async (req,res) =>{
+            Util.validarErrores(req,res)
+
+            const siActualizo = await ReporteCtrl.actualizarEstado(req.body)
+
+            if(siActualizo){
+                Util.msjSuccess(res,"Estado actualizado.")
+            }else{
+                Util.msjError(res,"No se logro actualizar el estado.")
+            }   
+        }
+    ]
+)
 
 module.exports = router

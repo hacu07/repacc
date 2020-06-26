@@ -16,7 +16,7 @@ const notificacionSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // Si es de tipo SMS, Notificacion, etc.
+    // Si es de tipo SMS, Notificación, etc.
     tipo:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'tipo',
@@ -39,11 +39,11 @@ const notificacionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'estado',
         required: true
-    },
-    date: {
-        type:Date,
-        default: Date.now
     }
+}
+,
+{
+    timestamps: true
 })
 
 const Notificacion = mongoose.model("notificacion",notificacionSchema)

@@ -24,6 +24,19 @@ const agenteSchema = new mongoose.Schema({
         ref: 'entidad',
         required: true
     },
+    usuaReg: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'usuario',
+        required: true
+    },
+    // Ubicacion actual del agente cuando su estado es "ACTIVO"
+    latitud: Number,
+    longitud: Number,
+    // Codigo del servicio que presta el agente
+    servicio:{
+        type: String,
+        required: true
+    },
     date:{
         type: Date,
         default: Date.now

@@ -1,10 +1,12 @@
 const Reporte = require("../models/reporte")
+const AgenRepo = require("../models/agenRepo")
 const Util = require("../controllers/Util")
 const EstadoCtrl = require("../controllers/EstadoCtrl")
 const PaisCtrl = require("../controllers/PaisCtrl")
 const DepartamentoCtrl = require("../controllers/DepartamentoCtrl")
 const MunicipioCtrl = require("../controllers/MunicipioCtrl")
 const ServicioCtrl = require("../controllers/ServicioCtrl")
+const InvolucradoCtrl = require("../controllers/InvolucradoCtrl")
 
 
 /************************************************************
@@ -154,13 +156,12 @@ async function registroReporte(body){
             if(reportSaved){
                 objReporte = reportSaved
                 // Si se enviaron servicios
-                if(body.servicios.length > 0){
-                    await ServicioCtrl.registrarServicios(objReporte, body.servicios)
+                if(body.servicios.length > 0){                    
+                    await ServicioCtrl.registrarServicios(objReporte, body.servicios)                    
                 }
             }
         } catch (error) {
-            //ignore
-            console.log(error)
+            //ignore            
         }
     }
     
@@ -190,8 +191,157 @@ async function obtMunRep(nomPais, nomDpto, nomMuni){
     return municipio
 }
 
+/************************************************
+ * Actualiza estado del reporte notificado por el agente
+ * Cuando es falsaAlarma
+ * Si no es falsa alarma registra tambien los involucrados 
+ * reportados (Coleccion: Involucrados) y genera notificacion
+ * a los contactos de emergencia de estos.
+ * HAROLDC 02/06/2020
+ */
+async function actualizarEstado(reporte){
+    let siActualizo = false
 
+    try {
+        const estadoRepo = await EstadoCtrl.buscarEstado( 
+            !reporte.esFalAlarm ? 
+            Util.ESTADO_REPORTE_VALIDADO : 
+            Util.ESTADO_REPORTE_FALSAALARMA
+            )
+                
+        if(estadoRepo != null){
+            const repUpdate = await Reporte.findByIdAndUpdate(reporte._id,
+                {
+                    agenteFalAlarm: reporte.agenteFalAlarm,
+                    esFalAlarm: reporte.esFalAlarm,
+                    fechaFalAlar: Date.now(),
+                    estado: estadoRepo._id
+                })
+                
+            if(repUpdate){
+                siActualizo = true
+                await registrarInvolucrados(reporte._id)
+            }
+        }
+    } catch (error) {
+        //ignore
+        console.log(error)
+    }
+
+    return siActualizo
+}
+
+/**********************************************+
+ * Registra involucrados del reporte y genera notificacion 
+ * a los contactos de emergencia
+ * HAROLDC 02/06/2020
+ */
+async function registrarInvolucrados(idReporte){
+    const reporte = await findById(idReporte)
+    
+    if(reporte != null){
+        
+        if(reporte.placas != null && reporte.placas.length > 0){
+            reporte.placas.forEach(placa => {
+                InvolucradoCtrl.registrarInvolucrado(idReporte, placa).then().catch()
+            });
+        }
+
+    }
+}
+
+/**********************************************
+ * Retorna reportes donde se encuentra registrado del mas reciente al mas antiguo
+ * el agente.
+ */
+async function buscarReporteAgente(_idAgente){
+    let agentes = null
+
+    try {
+        let reportes = await AgenRepo.find({agente: _idAgente},'servicio').sort({date: -1})
+                .populate([
+                    {
+                        path : 'servicio',
+                        select: 'reporte',                                        
+                        populate: [
+                            {
+                                path: 'reporte',                                
+                                populate: [
+                                    {
+                                        path: 'usuarioReg',
+                                        select: '_id qr correo nombre celular usuario foto rol tipoSangre munNotif munResid estado', 
+                                        populate: [
+                                            {
+                                                path: 'rol',
+                                                populate:{path: 'estado'}
+                                            },
+                                            {
+                                                path: 'estado'
+                                            },
+                                            {
+                                                path:'munNotif',
+                                                populate : [
+                                                    {
+                                                        path: 'departamento',
+                                                        populate:  [
+                                                            {                                
+                                                                path: 'pais',
+                                                                populate: 'estado'
+                                                            },
+                                                            {
+                                                                path: 'estado'
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        path: 'estado'
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        path : 'municipioReg',
+                                        populate : [
+                                            {
+                                                path: 'departamento',
+                                                populate:  [
+                                                    {                                
+                                                        path: 'pais',
+                                                        populate: 'estado'
+                                                    },
+                                                    {
+                                                        path: 'estado'
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                path: 'estado'
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        path: 'estado'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ])        
+
+        if(reportes.length > 0){
+            agentes = reportes
+        }
+    } catch (error) {
+        //ignore
+    }    
+
+    return agentes
+}
 
 exports.registroReporte = registroReporte
 exports.getBasicInfoReports = getBasicInfoReports
 exports.findById = findById
+exports.actualizarEstado = actualizarEstado
+exports.registrarInvolucrados = registrarInvolucrados
+exports.buscarReporteAgente = buscarReporteAgente

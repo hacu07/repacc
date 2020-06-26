@@ -8,12 +8,16 @@ const involucradoSchema = new mongoose.Schema({
     },
     tipo:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'tipo',
-        required: true
+        ref: 'tipo'
     },
     placaqr: {
         type: String,
         required: true
+    },
+    // Usuario involucrado en el reporte
+    usuaInvolucrado :{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'usuario'
     }
 })
 

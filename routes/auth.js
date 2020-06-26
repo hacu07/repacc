@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt')
 const express = require('express')
 const Usuario = require('../models/usuario')
+const AgenteCtrl = require("../controllers/AgenteCtrl")
 // toma la ruta donde se encuentra alojado el archivo y 
 // todos los paths que apunten a este se ejecutan aca
 const router = express.Router()
@@ -77,12 +78,15 @@ router.post('/login', [
 
     user.contrasena = null
 
+    let agente = await AgenteCtrl.findById(user._id, 2)
+
     res.status(201)
     .header('Authorization',jwtToken)   // envia token en el header en modo clave: valor
     .json({                             // retorna respuesta con parametros en body
         error: false,
         msj: "Hola " + user.usuario,        
-        content: user
+        content: user,
+        agente: agente ? agente : null
     })
 })
 

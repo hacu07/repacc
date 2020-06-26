@@ -65,5 +65,27 @@ async function buscarVehiculos(idUsuario){
     return listaVehiculos
 }
 
+
+/**********************************************************
+ * Obtiene obj vehiculo segun placa, retorna objeto vehiculo
+ * HAROLDC 02/06/2020
+ */
+async function buscarVehiculoPorPlaca(placa){
+    let vehiculo = null
+
+    try {
+        const objVeh = await Vehiculo.findOne({placa: placa}, "_id usuario")
+
+        if(objVeh){
+            vehiculo = objVeh
+        }
+    } catch (error) {
+        // ignore
+    }
+
+    return vehiculo 
+}
+
 exports.buscarVehiculos = buscarVehiculos
 exports.registrarVehiculo = registrarVehiculo
+exports.buscarVehiculoPorPlaca = buscarVehiculoPorPlaca

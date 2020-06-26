@@ -17,6 +17,10 @@ const estadoSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    orden: {
+        type: Number,
+        required: true
+    },
     descripcion:{
         type: String,
         required: true

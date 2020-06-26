@@ -20,6 +20,9 @@ async function getTownById(idTown){
                             path: 'estado'
                         }
                     ]
+                },
+                {
+                    path : 'estado'
                 }
             ])
 
