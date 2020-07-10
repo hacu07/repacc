@@ -7,7 +7,7 @@ const DepartamentoCtrl = require("../controllers/DepartamentoCtrl")
 const MunicipioCtrl = require("../controllers/MunicipioCtrl")
 const ServicioCtrl = require("../controllers/ServicioCtrl")
 const InvolucradoCtrl = require("../controllers/InvolucradoCtrl")
-
+const AgenteCtrl = require("../controllers/AgenteCtrl")
 
 /************************************************************
  * Return the latest reports by town.
@@ -94,7 +94,12 @@ async function findById(idReporte){
             ])
 
         if(objRep){
-            reporte = objRep 
+            reporte = objRep
+            
+            // Consulta agente que reportó falsa alarma
+            if(reporte.agenteFalAlarm != null){
+                reporte.agenteFalAlarm = await AgenteCtrl.findById(reporte.agenteFalAlarm)
+            }
 
             // consulta servicios solicitados
             const serviciosSolicitados = await ServicioCtrl.getServicesByReportId(reporte._id)

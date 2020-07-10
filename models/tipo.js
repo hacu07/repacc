@@ -16,7 +16,8 @@ const tipoSchema = new mongoose.Schema({
     },
     estado:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'estado'
+        ref: 'estado',
+        autopopulate: true
     },
     descripcion:{
         type: String,
@@ -27,6 +28,8 @@ const tipoSchema = new mongoose.Schema({
         default: Date.now
     } 
 })
+
+tipoSchema.plugin(require('mongoose-autopopulate'));
 
 const Tipo = mongoose.model('tipo', tipoSchema)
 

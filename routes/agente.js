@@ -31,30 +31,6 @@ router.get(
  * METHOD POST
  **************************************************************/
 
- /*************************************************
-  * Cambia el estado de un agente
-  */
- router.post(
-     '/estado',
-     [
-         check('_id').isMongoId(),
-         check('disponible').isBoolean(),
-         check('latitud').isNumeric(),
-         check('longitud').isNumeric()
-     ],
-     async (req, res) =>{
-         Util.validarErrores(req,res)
-
-         const estado = await AgenteCtrl.cambiarEstado(req.body)
-
-         if(estado != null){
-            Util.msjSuccess(res,"Estado actualizado.",estado)
-         }else{
-             Util.msjError(res,"No se logro cambiar estado.")
-         }
-     }
- )
-
  /*****************************************
   * Registra el agente con los datos enviados
   */
@@ -76,6 +52,34 @@ router.post(
             Util.msjSuccess(res,"Registro exitoso.")
         }else{
             Util.msjError(res,"No se logró registrar el agente.")
+        }
+    }
+)
+
+/**************************************************************
+ * METHOD PUT
+ **************************************************************/
+
+ /*************************************************
+  * Cambia el estado de un agente
+  */
+ router.put(
+    '/estado',
+    [
+        check('_id').isMongoId(),
+        check('disponible').isBoolean(),
+        check('latitud').isNumeric(),
+        check('longitud').isNumeric()
+    ],
+    async (req, res) =>{
+        Util.validarErrores(req,res)
+
+        const estado = await AgenteCtrl.cambiarEstado(req.body)
+
+        if(estado != null){
+           Util.msjSuccess(res,"Estado actualizado.",estado)
+        }else{
+            Util.msjError(res,"No se logro cambiar estado.")
         }
     }
 )

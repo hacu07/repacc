@@ -20,6 +20,7 @@ const reporte = require("./routes/reporte")
 const servicio = require("./routes/servicio")
 const entidad = require("./routes/entidad")
 const agente = require("./routes/agente")
+const notificacion = require("./routes/notificacion")
 
 //Para usar los datos de tipo JSON -- IMPORTANTE
 app.use(express.json());
@@ -41,6 +42,7 @@ app.use('/api/reporte/', reporte)
 app.use('/api/servicio/', servicio)
 app.use('/api/entidad/', entidad)
 app.use('/api/agente/', agente)
+app.use('/api/notificacion/', notificacion)
 
 const port = process.env.PORT || 3004
 

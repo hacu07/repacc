@@ -117,7 +117,7 @@ async function obtenerAgentesDisponibles(idMunicipio, codigoServicio){
                     municipio: idMunicipio,
                     servicio: codigoServicio
                     }, 
-                    "_id latitud longitud"
+                    "_id latitud longitud usuario"
                 )
             
             

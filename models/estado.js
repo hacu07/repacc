@@ -31,6 +31,8 @@ const estadoSchema = new mongoose.Schema({
     }
 })
 
+estadoSchema.plugin(require('mongoose-autopopulate'));
+
 // Creacion de la clase modelo ('nombre de la coleccion', schema creado para la coleccion)
 const Estado = mongoose.model('estado',estadoSchema)
 

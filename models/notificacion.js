@@ -9,7 +9,7 @@ const notificacionSchema = new mongoose.Schema({
     // Se establece cuando se envia al contacto del involucrado
     involucrado:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'modelo'
+        ref: 'involucrado'
         // No es requerido siempre el involucrado ya que se puede enviar solo la notifacion del reporte en general.
     },
     mensaje:{
@@ -38,13 +38,16 @@ const notificacionSchema = new mongoose.Schema({
     estado:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'estado',
-        required: true
+        required: true,
+        autopopulate: true
     }
 }
 ,
 {
     timestamps: true
 })
+
+notificacionSchema.plugin(require('mongoose-autopopulate'));
 
 const Notificacion = mongoose.model("notificacion",notificacionSchema)
 
