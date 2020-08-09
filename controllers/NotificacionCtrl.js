@@ -1,12 +1,14 @@
 const Notificacion = require("../models/notificacion")
 const TipoCtrl = require('../controllers/TipoCtrl')
 const Util = require('../controllers/Util')
+const AgenteCtrl = require('../controllers/AgenteCtrl')
 
 async function find(query){
     let response = null
     
     try {
         const notifications = await Notificacion.find(query)
+        .sort({createdAt: -1})
         .populate(
             [
                 {
@@ -119,7 +121,7 @@ async function find(query){
             ]
         )      
         if(notifications.length > 0){
-            response = notifications
+            response = notifications   
         }        
     } catch (error) {
         //ignore
@@ -134,7 +136,13 @@ async function findUserNotif(body){
     if(tipoNotif){        
         let response = await find({usuario: body._id, tipo: tipoNotif._id})        
         if(response != null){
-            notifications = response
+            notifications = response            
+
+            for (const notif in notifications) {                
+                if(notifications[notif].reporte.agenteFalAlarm !== undefined){
+                    notifications[notif].reporte.agenteFalAlarm = await AgenteCtrl.findById(notifications[notif].reporte.agenteFalAlarm)
+                }
+            }            
         }
     }
 

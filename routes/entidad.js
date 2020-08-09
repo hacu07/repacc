@@ -4,6 +4,30 @@ const Util = require("../controllers/Util")
 
 const router = express.Router()
 const { check, validationResult } = require('express-validator');
+const Entidad = require("../models/entidad");
+
+/**************************************************************
+ * METHOD GET
+ **************************************************************/
+
+ //Retorna las entidades disponibles del municipio
+router.get(
+    '/:_idMunicipio',
+    [
+        check('_idMunicipio')
+    ],
+    async(req,res)=>{
+        Util.validarErrores(req,res)
+
+        const entidades = await EntidadCtrl.buscarClinicasMunicipio(req.params._idMunicipio)
+
+        if(entidades != null){
+            Util.msjSuccess(res,"Entidades del municipio.",entidades)
+        }else{
+            Util.msjError(res,"No se encontraron entidades en el municipio.")
+        }
+    }
+)
 
 /**************************************************************
  * METHOD POST

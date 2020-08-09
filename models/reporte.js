@@ -57,7 +57,7 @@ const reporteSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    serviciosSolicitados: Array
+    serviciosSolicitados: []
 })
 
 const Reporte = mongoose.model("reporte", reporteSchema)

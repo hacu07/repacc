@@ -7,6 +7,7 @@ const {check , validationResult} = require('express-validator');
  // Constantes usadas a nivel general
  const ESTADO_CODIGO_ACTIVO = "T1A"
  const ESTADO_CODIGO_INACTIVO = "T1I"
+ const ESTADO_CODIGO_OCUPADO = "T1O"
 
  // codigos de estado de los reportes
  const ESTADO_REPORTE_ENESPERA      = "T3E"
@@ -27,6 +28,9 @@ const {check , validationResult} = require('express-validator');
  //Tipo de Notificacion al reportar a contactos de emergencia
  const NOTIFICACION_APP = "NTFA"
  const NOTIFICACION_SMS = "NTFS"
+
+ // Codigos de tipo de las entidades
+ const TIPO_ENTIDAD_SALUD = "ENTS"
 
  // Estado de notificacion a contacto de emergencia
  const ESTADO_NOTIFICACION_NO_ENVIADO = "T5NE"
@@ -128,6 +132,7 @@ exports.calcularDistancia = calcularDistancia
 //Constantes
 exports.ESTADO_CODIGO_ACTIVO = ESTADO_CODIGO_ACTIVO
 exports.ESTADO_CODIGO_INACTIVO = ESTADO_CODIGO_INACTIVO
+exports.ESTADO_CODIGO_OCUPADO = ESTADO_CODIGO_OCUPADO
 
 exports.ESTADO_REPORTE_ENESPERA = ESTADO_REPORTE_ENESPERA
 exports.ESTADO_REPORTE_VALIDADO = ESTADO_REPORTE_VALIDADO
@@ -149,3 +154,5 @@ exports.NOTIFICACION_SMS = NOTIFICACION_SMS
 
 exports.ESTADO_NOTIFICACION_NO_ENVIADO = ESTADO_NOTIFICACION_NO_ENVIADO
 exports.ESTADO_NOTIFICACION_ENVIADO = ESTADO_NOTIFICACION_ENVIADO
+
+exports.TIPO_ENTIDAD_SALUD = TIPO_ENTIDAD_SALUD

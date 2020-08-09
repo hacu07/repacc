@@ -1,6 +1,6 @@
 const express = require('express')
 const Pais = require('../models/pais')
-
+const Estado = require('../models/estado')
 
 // toma la ruta donde se encuentra alojado el archivo y 
 // todos los paths que apunten a este se ejecutan aca

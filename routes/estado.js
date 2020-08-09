@@ -26,7 +26,7 @@ router.get('/', async (req,res)=>{
  */
 router.get('/:tipo', async (req,res)=>{
     // Consulta los estados segun el tipo enviado por parametro
-    Estado.find({tipo: req.params.tipo},'nombre tipo descripcion', (err,docs)=>{
+    Estado.find({tipo: req.params.tipo},'nombre tipo descripcion orden codigo', (err,docs)=>{
         // callback 
         if(err) return res.send(err)
 
@@ -82,7 +82,7 @@ router.post('/',
         codigo: req.body.codigo.trim(),
         nombre: req.body.nombre.trim(),
         tipo: req.body.tipo,
-        ordern: req.body.orden,
+        orden: req.body.orden,
         descripcion: req.body.descripcion.trim()
     })
     // guarda en la bd 

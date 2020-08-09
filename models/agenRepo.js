@@ -43,7 +43,7 @@ const agenRepoSchema = new mongoose.Schema({
         ref: 'estado',
         required: true
     },
-    descriptraslado: String,
+    descripTraslado: String,
     //Unidad medica (entidad) a la que fue remitido el paciente
     unidadMedica:{
         type: mongoose.Schema.Types.ObjectId,

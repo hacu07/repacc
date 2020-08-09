@@ -25,7 +25,7 @@ router.get(
         if(notifications != null){
             Util.msjSuccess(res,'Notificaciones encontradas.',notifications)
         }else{
-            Util.msjError(res,'No se logró encontrar notificaciones.')
+            Util.msjError(res,'No se encontraron notificaciones.')
         }
 
     }

@@ -4,6 +4,7 @@ const Util =  require("./Util")
 const MunicipioCtrl = require("./MunicipioCtrl")
 const TipoCtrl = require("./TipoCtrl")
 
+
 /***************************************
  * Busca la entidad segun id
  */
@@ -27,6 +28,69 @@ async function findById(idEntidad){
 
     return entidad
 }
+
+/*******************************************+
+ * Obtiene las entidades de salud de un municipio
+ */
+async function buscarClinicasMunicipio(_idMunicipio){
+    let entidadesSalud = null
+    let tipoEntidadSalud = await TipoCtrl.buscarTipoSegunCodigo(Util.TIPO_ENTIDAD_SALUD)
+    let estadoActivo = await EstadoCtrl.buscarEstado(Util.ESTADO_CODIGO_ACTIVO)
+    try {
+
+        if(tipoEntidadSalud != null && estadoActivo != null){
+            let response = await Entidad.find(
+                {   municipio: _idMunicipio, 
+                    tipo: tipoEntidadSalud._id,
+                    estado: estadoActivo._id
+                },
+                "_id nit nombre direccion municipio " + 
+                "latlong latitud longitud estado tipo")
+                .populate([
+                    {
+                        path:'municipio',
+                        populate : [
+                            {
+                                path: 'departamento',
+                                populate:  [
+                                    {                                
+                                        path: 'pais',
+                                        populate: 'estado'
+                                    },
+                                    {
+                                        path: 'estado'
+                                    }
+                                ]
+                            },
+                            {
+                                path: 'estado'
+                            }
+                        ]
+                    },
+                    {
+                        path: 'estado'
+                    },
+                    {
+                        path: 'tipo',
+                        populate: [
+                            {
+                                path: 'estado'
+                            }
+                        ]
+                    }
+                ])
+            
+            if(response != null && response.length > 0){
+                entidadesSalud = response
+            }
+        }        
+    } catch (error) {
+        
+    }
+
+    return entidadesSalud
+}
+
 
 /*********************************
  * Registra la entidad
@@ -70,3 +134,4 @@ async function save(body){
 
 exports.save = save
 exports.findById = findById
+exports.buscarClinicasMunicipio  = buscarClinicasMunicipio

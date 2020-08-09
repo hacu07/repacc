@@ -69,6 +69,26 @@ async function cambiarEstado(body){
 }
 
 /**********************************
+ * Actualiza los datos de un agente
+ * HAROLDC 03/08/2020
+ */
+async function updateAgent(objAgent){
+    let siActualizo = false
+    
+    try {
+        const objAgentUpdated = await Agente.findByIdAndUpdate({_id: objAgent._id},objAgent,{new:true})                
+        if(objAgentUpdated){            
+            siActualizo = true
+        }
+                                        
+    } catch (error) {
+        // ignore error        
+    }
+    
+    return siActualizo
+}
+
+/**********************************
  * Registra agente
  * HAROLDC 26/05/2020
  */
@@ -115,7 +135,8 @@ async function obtenerAgentesDisponibles(idMunicipio, codigoServicio){
         if(estadoDisp){
             const listDisp = await Agente.find({
                     municipio: idMunicipio,
-                    servicio: codigoServicio
+                    servicio: codigoServicio,
+                    ocupado : false
                     }, 
                     "_id latitud longitud usuario"
                 )
@@ -139,3 +160,4 @@ exports.save = save
 exports.findById = findById
 exports.cambiarEstado = cambiarEstado
 exports.obtenerAgentesDisponibles = obtenerAgentesDisponibles
+exports.updateAgent = updateAgent

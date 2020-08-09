@@ -71,7 +71,7 @@ router.post('/',
     //No encontro errores en los parametros
 
     // Asigna estado activo por defecto
-    Estado.find({tipo: 1,nombre: "ACTIVO"}, async (err, objEstado)=>{
+    Estado.find({tipo: 1,codigo: "T1A"}, async (err, objEstado)=>{
         //ocurrio error al buscar
         if(err){
             return res.json({
@@ -79,9 +79,9 @@ router.post('/',
                 msj: 'Error al obtener estado ha asignar al rol'
             })
         }
-
+        
         // No ocurrio error al buscar estado 
-        if(objEstado){
+        if(objEstado != null){
             const objMuni = new Municipio({
                 codigo: req.body.codigo,
                 nombre: req.body.nombre,
@@ -92,13 +92,12 @@ router.post('/',
 
             //guarda en BD
             try {
-                const objMuniSave =  await objMuni.save()
-
+                const objMuniSave = await objMuni.save()                
                 // Si guardo...
-                if(objMuniSave){
+                if(objMuniSave != null){
                     res.json({
                         error: false,
-                        content: objDptoSave
+                        content: objMuniSave
                     })
                 }else{
                     res.json({
@@ -106,7 +105,7 @@ router.post('/',
                         msj: "No se logró registrar el municipio."
                     })    
                 }
-            } catch (exp) {
+            } catch (exp) {                
                 res.json({
                     error: true,
                     msj: "Error al registrar el municipio.",

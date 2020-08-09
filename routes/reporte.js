@@ -60,6 +60,36 @@ router.get(
 )
 
 /*
+    Retorna datos basicos de reportes segun 
+    el municipio indicado y el codigo
+    Autor: HAROLDC
+    Fecha: 01/08/2020
+*/
+router.get(
+    '/basicInfo/:idTown/:codigo',
+    [
+        check("idTown").isMongoId(),
+        check("codigo").isString().notEmpty()
+    ],
+    async (req,res)=>{
+        Util.validarErrores(req,res)
+
+        const listReports = await ReporteCtrl.getBasicInfoReports(req.params.idTown, req.params.codigo)
+
+        if(listReports != null){
+            if(listReports.length > 0){
+                Util.msjSuccess(res,"Reportes encontrado",listReports)
+            }else{
+                Util.msjError(res,"No se encontraron reportes.")
+            }
+            
+        }else{
+            Util.msjError(res,"No se logró obtener el reporte.")
+        }
+    }
+)
+
+/*
     Retorna informacion del reporte seleccionado
     el municipio indicado
     Autor: HAROLDC
@@ -118,7 +148,7 @@ router.put(
     '/estado/',
     [
         check('_id').isMongoId(),
-        check('agenteFalAlarm').isMongoId(),
+        check('agenteFalAlarm._id').isMongoId(),
         check('esFalAlarm').isBoolean(),
         async (req,res) =>{
             Util.validarErrores(req,res)

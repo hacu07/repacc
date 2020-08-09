@@ -51,6 +51,7 @@ async function reportarServiciosAgentes(reporte, objServicio){
         // Obtiene el servicio (Tipo)
         let objTipo = await TipoCtrl.findById(objServicio.tipo)
         const estNotifAct = await EstadoCtrl.buscarEstado(Util.ESTADO_SERVICIO_NOATENDIDO)
+        const estOcupado  = await EstadoCtrl.buscarEstado(Util.ESTADO_CODIGO_OCUPADO)
         if(objTipo != null && estNotifAct != null){        
             let agentesDisp = await AgenteCtrl.obtenerAgentesDisponibles(reporte.municipioReg._id, objTipo.codigo)               
             // Si encontro agentes disponibles en el municipio del reporte
@@ -73,7 +74,13 @@ async function reportarServiciosAgentes(reporte, objServicio){
                     // Si registro el agente al servicio del reporte, 
                     // realiza notificacion
                     if(registro){
+
+                        // Cambia propiedad del Agente a ocupado para que no le asignen mas reportes                                                
+                        agenteNotif.ocupado = true
+                        await AgenteCtrl.updateAgent(agenteNotif)
                         
+
+                        // Notifica al agente
                         let tipoNotifApp = await TipoCtrl.buscarTipoSegunCodigo(Util.NOTIFICACION_APP)
                         let tipoNotifSMS = await TipoCtrl.buscarTipoSegunCodigo(Util.NOTIFICACION_SMS)
                         let estNotfEnviado = await EstadoCtrl.buscarEstado(Util.ESTADO_NOTIFICACION_ENVIADO)
@@ -106,7 +113,7 @@ async function reportarServiciosAgentes(reporte, objServicio){
 
                                 notificacionSMS.save() 
                         }else{
-                            console.log("pailas")
+                            // No se logró registrar la notificacion.                            
                         }
                     }
                                     
@@ -227,13 +234,13 @@ async function actualizarServicio(body){
         
         agenRepo.detalle.push(body.detalle[body.detalle.length - 1])        
         
-        let detalle = agenRepo.detalle        
+        let detalle = agenRepo.detalle                
 
         let agenRepoUpd = await AgenRepo.findByIdAndUpdate(agenRepo._id,{
             estado: body.estado._id,
             detalle: detalle,
             descripTraslado: body.descriptraslado != null ? body.descriptraslado : null,
-            unidadMedica: body.unidadMedica != null ? body.unidadMedica : null
+            unidadMedica: body.unidadMedica != null ? body.unidadMedica._id : null
         })
 
         // Si actualizo
@@ -247,7 +254,13 @@ async function actualizarServicio(body){
                         estado: body.estado._id
                     })            
             }
-            
+
+            // Si el estado del servicio fue atendido actualiza el estado del agente
+            // cambia a ser ocupado = false
+            if(Util.ESTADO_SERVICIO_ATENDIDO === body.estado.codigo){
+                body.agente.ocupado = false                
+                await AgenteCtrl.updateAgent(body.agente)
+            }            
         }   
     }
 

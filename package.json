@@ -4,7 +4,7 @@
   "description": "Aplicacion para el reporte de accidentes de transito",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    
   },
   "keywords": [],
   "author": "Harold Cupitra",

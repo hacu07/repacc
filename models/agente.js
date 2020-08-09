@@ -6,6 +6,11 @@ const agenteSchema = new mongoose.Schema({
         ref: 'usuario',
         required: true
     },
+    // Si se encuentra asignado a algun reporte
+    ocupado:{
+        type: Boolean,
+        default: false
+    },
     // Si se encuentra disponible o no
     estado:{
         type: mongoose.Schema.Types.ObjectId,

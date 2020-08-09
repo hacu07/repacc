@@ -8,18 +8,26 @@ const MunicipioCtrl = require("../controllers/MunicipioCtrl")
 const ServicioCtrl = require("../controllers/ServicioCtrl")
 const InvolucradoCtrl = require("../controllers/InvolucradoCtrl")
 const AgenteCtrl = require("../controllers/AgenteCtrl")
+const AgenRepoCtrl = require("../controllers/AgenRepoCtrl")
+
 
 /************************************************************
  * Return the latest reports by town.
  * Autor: HAROLDC
  */
-async function getBasicInfoReports(idTown){
+async function getBasicInfoReports(idTown, codReporte = null){
     var listReports = null
 
+    const estadoValido = await EstadoCtrl.buscarEstado(Util.ESTADO_REPORTE_VALIDADO)
     const municipio = await MunicipioCtrl.getTownById(idTown)
 
-    if(municipio != null){
-        listReports = await Reporte.find({municipioReg: idTown}, "_id imagen direccion date").limit(21)
+    let objBusq = 
+        codReporte == null ? 
+        {municipioReg: idTown, estado : estadoValido._id} : 
+        {municipioReg: idTown, codigo : codReporte, estado : estadoValido._id}
+
+    if(municipio != null && estadoValido != null){
+        listReports = await Reporte.find(objBusq, "_id imagen direccion date").limit(21).sort({date: -1})
     }
 
     return listReports
@@ -102,7 +110,7 @@ async function findById(idReporte){
             }
 
             // consulta servicios solicitados
-            const serviciosSolicitados = await ServicioCtrl.getServicesByReportId(reporte._id)
+            const serviciosSolicitados = await ServicioCtrl.getServicesByReportId(reporte._id)            
 
             if(serviciosSolicitados != null){
                 reporte.serviciosSolicitados = serviciosSolicitados
@@ -166,7 +174,7 @@ async function registroReporte(body){
                 }
             }
         } catch (error) {
-            //ignore            
+            //ignore                      
         }
     }
     
@@ -217,7 +225,7 @@ async function actualizarEstado(reporte){
         if(estadoRepo != null){
             const repUpdate = await Reporte.findByIdAndUpdate(reporte._id,
                 {
-                    agenteFalAlarm: reporte.agenteFalAlarm,
+                    agenteFalAlarm: reporte.agenteFalAlarm._id,
                     esFalAlarm: reporte.esFalAlarm,
                     fechaFalAlar: Date.now(),
                     estado: estadoRepo._id
@@ -225,12 +233,19 @@ async function actualizarEstado(reporte){
                 
             if(repUpdate){
                 siActualizo = true
-                await registrarInvolucrados(reporte._id)
+
+                // si no es falsa alarma reporta a involucrados
+                if(!reporte.esFalAlarm){
+                    await registrarInvolucrados(reporte._id)
+                }else{
+                    // Como es falsa alarma cambia el estado de los agentes asociados al reporte
+                    await liberarAgentes(reporte)
+                }
+                
             }
         }
     } catch (error) {
-        //ignore
-        console.log(error)
+        //ignore        
     }
 
     return siActualizo
@@ -342,6 +357,41 @@ async function buscarReporteAgente(_idAgente){
     }    
 
     return agentes
+}
+
+
+/**************************************
+ * Cambiar el estado de los agentes una vez se ha validado que el reporte es falsa alarma
+ * HAROLDC 05/08/2020
+ */
+async function liberarAgentes(reporte){        
+    const serviciosReporte = await ServicioCtrl.getServicesByReportId(reporte._id)
+
+    // Si el servicio tiene reportes registrados
+    if(serviciosReporte != null){
+
+        // Recorre cada servicio y busca los agentes para cambiarles el estado
+        for (const posicion in serviciosReporte) {
+            const servicio = serviciosReporte[posicion];
+            
+            // Agentes asociados al servicio del reporte
+            const agenRepos = await AgenRepoCtrl.find({servicio: servicio._id})
+
+            // si encontro los agentes asociados al servicio
+            if(agenRepos != null){
+                
+                for (const posAgenRepo in agenRepos) {                                        
+                    //  Objeto Agente a actualizar
+                    let agente = {
+                        _id: agenRepos[posAgenRepo].agente._id,
+                        ocupado: false
+                    }
+                                 
+                    let siActualizo = await AgenteCtrl.updateAgent(agente)
+                }
+            }
+        }
+    }    
 }
 
 exports.registroReporte = registroReporte
