@@ -50,8 +50,7 @@ async function reportarServiciosAgentes(reporte, objServicio){
     try {
         // Obtiene el servicio (Tipo)
         let objTipo = await TipoCtrl.findById(objServicio.tipo)
-        const estNotifAct = await EstadoCtrl.buscarEstado(Util.ESTADO_SERVICIO_NOATENDIDO)
-        const estOcupado  = await EstadoCtrl.buscarEstado(Util.ESTADO_CODIGO_OCUPADO)
+        const estNotifAct = await EstadoCtrl.buscarEstado(Util.ESTADO_SERVICIO_NOATENDIDO)        
         if(objTipo != null && estNotifAct != null){        
             let agentesDisp = await AgenteCtrl.obtenerAgentesDisponibles(reporte.municipioReg._id, objTipo.codigo)               
             // Si encontro agentes disponibles en el municipio del reporte

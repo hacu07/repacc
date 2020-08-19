@@ -23,7 +23,7 @@ async function getBasicInfoReports(idTown, codReporte = null){
 
     let objBusq = 
         codReporte == null ? 
-        {municipioReg: idTown, estado : estadoValido._id} : 
+        {municipioReg: idTown, estado : estadoValido._id } : 
         {municipioReg: idTown, codigo : codReporte, estado : estadoValido._id}
 
     if(municipio != null && estadoValido != null){
@@ -171,6 +171,13 @@ async function registroReporte(body){
                 // Si se enviaron servicios
                 if(body.servicios.length > 0){                    
                     await ServicioCtrl.registrarServicios(objReporte, body.servicios)                    
+                }
+
+                //Obtiene el objeto con datos poblados
+                let reportPopulated = await findById(objReporte._id)
+
+                if(reportPopulated){
+                    objReporte = reportPopulated
                 }
             }
         } catch (error) {
@@ -394,9 +401,37 @@ async function liberarAgentes(reporte){
     }    
 }
 
+/*********************************************
+ * Obtiene por parametro obj Reporte con el fin de actualizar 
+ * la ruta de la imagen registrada en firebase storage.
+ * HAROLDC 11/08/2020
+ */
+async function actualizarImagen(objReporte){
+    let siActualizo = false
+
+    try {
+        let repActualizado  = await Reporte.findByIdAndUpdate(
+            {_id : objReporte._id},
+            {
+                imagen: objReporte.imagen
+            },
+            {new: true}            
+        )
+
+        if(repActualizado){
+            siActualizo = true
+        }
+    } catch (error) {
+        //ignore error
+    }
+
+    return siActualizo
+}
+
 exports.registroReporte = registroReporte
 exports.getBasicInfoReports = getBasicInfoReports
 exports.findById = findById
 exports.actualizarEstado = actualizarEstado
 exports.registrarInvolucrados = registrarInvolucrados
 exports.buscarReporteAgente = buscarReporteAgente
+exports.actualizarImagen = actualizarImagen

@@ -134,7 +134,7 @@ router.post(
         const objReporte = await ReporteCtrl.registroReporte(req.body)
 
         if(objReporte != null){
-            Util.msjSuccess(res,"Codigo del reporte: " + objReporte.codigo)
+            Util.msjSuccess(res,"Codigo del reporte: " + objReporte.codigo, objReporte)
         }else{
             Util.msjError(res,"No se logró reportar.")
         }
@@ -149,19 +149,44 @@ router.put(
     [
         check('_id').isMongoId(),
         check('agenteFalAlarm._id').isMongoId(),
-        check('esFalAlarm').isBoolean(),
-        async (req,res) =>{
-            Util.validarErrores(req,res)
+        check('esFalAlarm').isBoolean()
+    ],
+    async (req,res) =>{
+        Util.validarErrores(req,res)
 
-            const siActualizo = await ReporteCtrl.actualizarEstado(req.body)
+        const siActualizo = await ReporteCtrl.actualizarEstado(req.body)
 
-            if(siActualizo){
-                Util.msjSuccess(res,"Estado actualizado.")
-            }else{
-                Util.msjError(res,"No se logro actualizar el estado.")
-            }   
+        if(siActualizo){
+            Util.msjSuccess(res,"Estado actualizado.")
+        }else{
+            Util.msjError(res,"No se logro actualizar el estado.")
+        }   
+    }
+    
+)
+
+/***********************************************
+ * Actualiza la imagen del reporte una vez se ha cargado en firebase storage
+ * HAROLDC 11/08/2020
+ */
+router.put(
+    '/cargarImagen/',
+    [
+        check('_id').isMongoId(),
+        check('imagen').isString().notEmpty()
+    ],
+    async (req,res) => {
+        Util.validarErrores(req,res)
+
+        const siActualizo = await ReporteCtrl.actualizarImagen(req.body)
+
+        if(siActualizo){
+            Util.msjSuccess(res,"Imagen actualizada.")
+        }else{
+            Util.msjError(res,"No se logro actualizar la imagen.")
         }
-    ]
+    }
+
 )
 
 module.exports = router

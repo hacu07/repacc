@@ -45,7 +45,10 @@ const reporteSchema = new mongoose.Schema({
         ref: 'municipio',
         required: true
     },
-    esFalAlarm: Boolean,
+    esFalAlarm: {
+        type: Boolean,
+        default: false
+    },
     // Agente que reporto falsa alarma
     agenteFalAlarm:{
         type: mongoose.Schema.Types.ObjectId,

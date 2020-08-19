@@ -101,7 +101,7 @@ router.post('/registro',[
                  errors: errors.array()
              }
          );
-     }
+    }
     //No encontro errores en los parametros
 
     // Asigna estado activo y rol conductor por defecto
@@ -135,19 +135,26 @@ router.post('/registro',[
 
             try {
                 // guarda en BD
-                const usuSaved = await usuSave.save()                                
-                usuSaved.contrasena = null
+                const usuSaved = await usuSave.save()                                               
 
-                res.status(201)                
-                    .send({
+                if(usuSaved){                    
+                    // Se registro correctamente el usuario
+                    res.json({
                         error: false,
-                        msj: "Usuario registrado.",
-                        content: usuSaved
+                        msj: "Usuario registrado."                        
                     })
+                }else{
+                    // No se logro registrar el usuario
+                    res.json({
+                        error: true,
+                        msj: "No se logró registrar el usuario."                        
+                    })
+                }
+                
             } catch (e) {
                 return res.json({
                     error: true,
-                    msj: "Error al registrar usuario.",
+                    msj: "No se logró registrar el usuario.",
                     errors: e
                 })
             }
