@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Aplicacion para el reporte de accidentes de transito",
   "main": "index.js",
-  "scripts": {
-    
-  },
+  "scripts": {},
   "keywords": [],
   "author": "Harold Cupitra",
   "license": "ISC",
@@ -16,6 +14,7 @@
     "express-validator": "^6.4.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.8.11",
-    "mongoose-autopopulate": "^0.12.2"
+    "mongoose-autopopulate": "^0.12.2",
+    "socket.io": "^2.3.0"
   }
 }

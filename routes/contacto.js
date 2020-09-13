@@ -48,7 +48,7 @@ const { check, validationResult } = require('express-validator');
                 error: true,                        
                 msj: "Usuario no encontrado"
             }
-        }
+        }        
 
         res.json(jsonReturn)
 
@@ -73,9 +73,9 @@ router.get(
                 }
             );
         }
-        //No encontro errores en los parametros
+        //No encontro errores en los parametros    
 
-        const contactos = await ContactoCtrl.buscarContactos(req.params.idUsuario)
+        const contactos = await ContactoCtrl.buscarContactos(req.params.idUsuario, req)
 
         if(contactos.length > 0){
             // Encontro contactos

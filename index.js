@@ -1,6 +1,13 @@
 const mongoose = require('mongoose')    // para MongoDB
-const express = require('express')      // para peticiones
-const app = express()
+const mSocket  = require("./socket.js/socket")   // Socket
+
+const {app, express} = require('./app/app')
+
+//Para usar los datos de tipo JSON -- IMPORTANTE
+app.use(express.json());
+
+const port = process.env.PORT || 3004
+const server = app.listen(port, () => console.log('Escuchando puerto:' +port))
 
 // Routes
 const estado = require("./routes/estado")
@@ -22,8 +29,7 @@ const entidad = require("./routes/entidad")
 const agente = require("./routes/agente")
 const notificacion = require("./routes/notificacion")
 
-//Para usar los datos de tipo JSON -- IMPORTANTE
-app.use(express.json());
+
 // Direccionamiento Modelos
 app.use('/api/estado/', estado)
 app.use('/api/rol/', rol)
@@ -44,11 +50,17 @@ app.use('/api/entidad/', entidad)
 app.use('/api/agente/', agente)
 app.use('/api/notificacion/', notificacion)
 
-const port = process.env.PORT || 3004
-
-app.listen(port, () => console.log('Escuchando puerto:' +port))
+const SocketIO = require('socket.io')
+const io = SocketIO.listen(server)
 
 mongoose.connect('mongodb://localhost/repaccdb',{useNewUrlParser:true, useFindAndModify:false, useCreateIndex: true})    
-    .then( ()=>console.log('Conectado a MongoDB') )
-    .catch( erro => console.log('No se ha conectado a MongoDB') )
+    .then( ()=>{
+        console.log('Conectado a MongoDB')
+        // Si se conectó a mongoDB asigna el socket 
+        mSocket.socket(io,app)
+    })
+    .catch( 
+        error => console.log('No se logró conectar a MongoDB')
+    )
+
     

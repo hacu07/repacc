@@ -7,8 +7,6 @@ const NotificacionCtrl = require('../controllers/NotificacionCtrl')
 const router = express.Router()
 const { check, validationResult } = require('express-validator');
 
-
-
  /*****************************************************************************
  *                      METHOD GET
  *********************************************************************** */
@@ -20,7 +18,7 @@ router.get(
     async (req,res)=>{
         Util.validarErrores(req,res)
         
-        const notifications = await NotificacionCtrl.findUserNotif(req.params)
+        const notifications = await NotificacionCtrl.findUserNotif(req.params)        
 
         if(notifications != null){
             Util.msjSuccess(res,'Notificaciones encontradas.',notifications)

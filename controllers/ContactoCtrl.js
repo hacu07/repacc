@@ -19,10 +19,9 @@ async function findContacts(username){
     return contactos
 }
 
-
 /* Obtiene contactos del usuario enviado por parametro */
 async function buscarContactos(idUsuario){
-    var contactos = null
+    var contactos = null    
 
     if(idUsuario){
         contactos = await   Contacto

@@ -3,6 +3,8 @@ const express = require('express')
 const Usuario = require('../models/usuario')
 const Estado = require('../models/estado')
 const Rol = require('../models/rol')
+const Util = require('../controllers/Util')
+const UsuarioCtrl = require("../controllers/UsuarioCtrl")
 // toma la ruta donde se encuentra alojado el archivo y 
 // todos los paths que apunten a este se ejecutan aca
 const router = express.Router()
@@ -255,5 +257,25 @@ router.put('/edicion',[
    })
 })
 
+/***********************************************
+ * Actualiza el socketId del usuario
+ */
+router.put('/updateSocketId',
+    [
+        check('_id').isMongoId(),
+        check('asignar').isBoolean()
+    ], async (req,res) => {
+
+       Util.validarErrores(req, res) 
+
+       const siActualizo = await UsuarioCtrl.updateSocketId(req.body, 1)
+
+       if(siActualizo){
+           Util.msjSuccess(res,"Socket actualizado")
+       }else{
+           Util.msjError(res,"No se logró actualizar socketId.")
+       }
+    }
+)
 
  module.exports = router

@@ -67,6 +67,10 @@ const usuarioSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'estado',
         required: true
+    }, 
+    socketId: {
+        type: String,
+        default: null
     }
 })
 

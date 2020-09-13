@@ -41,7 +41,6 @@ async function registrarInvolucrado(idReporte, placa){
                 let usuarioInvolucrado = await UsuarioCtrl.findById(vehiculo.usuario._id)
                 let reporte = await ReporteCtrl.findById(idReporte)
 
-
                 if(tipoNotifApp != null && tipoNotifSMS != null && 
                     estNotfEnviado != null && estNotfNoEnviado != null &&
                     usuarioInvolucrado != null && reporte != null){

@@ -6,6 +6,7 @@ const UsuarioCtrl = require("../controllers/UsuarioCtrl")
 const TipoCtrl = require("../controllers/TipoCtrl")
 const AgenRepo = require("../models/agenRepo")
 const Notificacion = require("../models/notificacion")
+const {app} = require("../app/app")
 
 /**
  * Una vez el reporte ha sido registrado, registra los servicios indicados por el usuario
@@ -49,11 +50,12 @@ async function reportarServiciosAgentes(reporte, objServicio){
 
     try {
         // Obtiene el servicio (Tipo)
+        const io = app.get("socket") 
         let objTipo = await TipoCtrl.findById(objServicio.tipo)
         const estNotifAct = await EstadoCtrl.buscarEstado(Util.ESTADO_SERVICIO_NOATENDIDO)        
         if(objTipo != null && estNotifAct != null){        
             let agentesDisp = await AgenteCtrl.obtenerAgentesDisponibles(reporte.municipioReg._id, objTipo.codigo)               
-            // Si encontro agentes disponibles en el municipio del reporte
+            // Si encontro agentes disponibles en el municipio del reporte            
             if(agentesDisp != null  && agentesDisp.length > 0){
                 
                 // Obtiene agente mas cercano al sitio del reporte
@@ -84,7 +86,7 @@ async function reportarServiciosAgentes(reporte, objServicio){
                         let tipoNotifSMS = await TipoCtrl.buscarTipoSegunCodigo(Util.NOTIFICACION_SMS)
                         let estNotfEnviado = await EstadoCtrl.buscarEstado(Util.ESTADO_NOTIFICACION_ENVIADO)
                         let estNotfNoEnviado = await EstadoCtrl.buscarEstado(Util.ESTADO_NOTIFICACION_NO_ENVIADO)
-                        let usuario = await UsuarioCtrl.findById(agenteNotif.usuario)
+                        let usuario = await UsuarioCtrl.findById(agenteNotif.usuario._id)
                         if(tipoNotifApp != null && tipoNotifSMS != null && usuario != null &&
                             estNotfEnviado != null && estNotfNoEnviado != null){
                                 let msj = "REPACC: ha sido reportado en un evento de movilidad. Busca con codigo " + 
@@ -97,9 +99,25 @@ async function reportarServiciosAgentes(reporte, objServicio){
                                     usuario: usuario._id,
                                     rol: usuario.rol._id,
                                     estado:  estNotfEnviado    
-                                })      
+                                })
                                 
-                                notificacionApp.save()
+                                let objNotifAppSave = await notificacionApp.save()
+                            
+                                if(objNotifAppSave){
+                                    if(agenteNotif.usuario.socketId != null && io != undefined){
+                                        try {                                            
+                                            console.log("socket de envio: " + agenteNotif.usuario.socketId)                                            
+                                            //io.to(agenteNotif.usuario.socketId).emit("notification",objNotifAppSave)
+                                            io.emit("notification",objNotifAppSave)                                        
+                                        } catch (errore) {
+                                            console.log(errore)
+                                        }                                    
+                                    }else{
+                                        console.log("Socket no definido..")
+                                    }                                   
+                                }else{
+                                    console.log("no guardó notif.")
+                                }
 
                                 let notificacionSMS = new Notificacion({
                                     reporte: reporte._id,                                
@@ -133,6 +151,7 @@ async function reportarServiciosAgentes(reporte, objServicio){
             }
         }
     } catch (error) {
+        console.log("error en ServicioCtrl.js -> reportarServiciosAgentes()")
         console.log(error)
     }
     

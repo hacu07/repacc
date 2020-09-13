@@ -139,7 +139,12 @@ async function obtenerAgentesDisponibles(idMunicipio, codigoServicio){
                     ocupado : false
                     }, 
                     "_id latitud longitud usuario"
-                )
+                ).populate([
+                    {
+                        path: 'usuario',
+                        select: '_id socketId'
+                    }
+                ])
             
             
             // Si encontro resultados

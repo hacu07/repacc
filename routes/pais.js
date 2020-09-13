@@ -15,6 +15,9 @@ const { check, validationResult } = require('express-validator');
  * Retorna los estados registrados
  */
 router.get('/paises', async (req,res)=>{
+
+     
+
     const pais = await Pais.find(null,'_id codigo nombre prefijoTel')
     
     let jsonRespuesta = null
