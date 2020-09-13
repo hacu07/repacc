@@ -106,9 +106,9 @@ async function reportarServiciosAgentes(reporte, objServicio){
                                 if(objNotifAppSave){
                                     if(agenteNotif.usuario.socketId != null && io != undefined){
                                         try {                                            
-                                            console.log("socket de envio: " + agenteNotif.usuario.socketId)                                            
+                                            console.log("socket de envio: " + agenteNotif.usuario.usuario)                                            
                                             //io.to(agenteNotif.usuario.socketId).emit("notification",objNotifAppSave)
-                                            io.emit("notification",objNotifAppSave)                                        
+                                            io.emit(agenteNotif.usuario.usuario,objNotifAppSave)                                        
                                         } catch (errore) {
                                             console.log(errore)
                                         }                                    

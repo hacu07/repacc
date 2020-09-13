@@ -142,7 +142,7 @@ async function obtenerAgentesDisponibles(idMunicipio, codigoServicio){
                 ).populate([
                     {
                         path: 'usuario',
-                        select: '_id socketId'
+                        select: '_id usuario socketId'
                     }
                 ])
             
