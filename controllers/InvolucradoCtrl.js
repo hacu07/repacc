@@ -7,6 +7,7 @@ const ReporteCtrl = require("../controllers/ReporteCtrl")
 const Util = require("../controllers/Util")
 const Involucrado = require("../models/involucrado")
 const Notificacion = require("../models/notificacion")
+const {app} = require("../app/app")
 /***************************************
  * Registra las placas, si encuentra que la placa esta asociada a un usuario
  * registra el id del usuario en el objeto Involucrado y genera notificaciones
@@ -14,6 +15,7 @@ const Notificacion = require("../models/notificacion")
  * HAROLDC 02/06/2020
  */
 async function registrarInvolucrado(idReporte, placa){
+    const io = app.get("socket") 
     // Busca si la placa se encuentra registrada en algun vehiculo
     let vehiculo = await VehiculoCtrl.buscarVehiculoPorPlaca(placa)    
 
@@ -67,7 +69,18 @@ async function registrarInvolucrado(idReporte, placa){
                                         })      
                                         
                                         notificacionApp.save()
-
+                                        
+                                        if(usuarioContacto.socketId != null && io != undefined){
+                                            try {                                            
+                                                console.log("socket de envio: " + usuarioContacto.usuario)                                            
+                                                io.emit(usuarioContacto.usuario,notificacionApp)                                        
+                                            } catch (errore) {
+                                                console.log(errore)
+                                            }                                    
+                                        }else{
+                                            console.log("Socket no definido..")
+                                        } 
+                                        
                                         let notificacionSMS = new Notificacion({
                                             reporte: idReporte,
                                             involucrado: invSave._id,

@@ -6,6 +6,7 @@ const UsuarioCtrl = require("../controllers/UsuarioCtrl")
 const TipoCtrl = require("../controllers/TipoCtrl")
 const AgenRepo = require("../models/agenRepo")
 const Notificacion = require("../models/notificacion")
+const NotificacionCtrl = require("../controllers/NotificacionCtrl")
 const {app} = require("../app/app")
 
 /**
@@ -49,8 +50,9 @@ async function registrarServicios(objReporte, servicios){
 async function reportarServiciosAgentes(reporte, objServicio){
 
     try {
-        // Obtiene el servicio (Tipo)
+        
         const io = app.get("socket") 
+        // Obtiene el servicio (Tipo)
         let objTipo = await TipoCtrl.findById(objServicio.tipo)
         const estNotifAct = await EstadoCtrl.buscarEstado(Util.ESTADO_SERVICIO_NOATENDIDO)        
         if(objTipo != null && estNotifAct != null){        
@@ -105,13 +107,15 @@ async function reportarServiciosAgentes(reporte, objServicio){
                             
                                 if(objNotifAppSave){
                                     if(agenteNotif.usuario.socketId != null && io != undefined){
-                                        try {                                            
-                                            console.log("socket de envio: " + agenteNotif.usuario.usuario)                                            
-                                            //io.to(agenteNotif.usuario.socketId).emit("notification",objNotifAppSave)
-                                            io.emit(agenteNotif.usuario.usuario,objNotifAppSave)                                        
+                                        try {                                                   
+                                            // Obtiene el objeto completo de la notificacion
+                                            let objNotifComplet = await NotificacionCtrl.findOne({_id : objNotifAppSave._id})
+                                            if(objNotifComplet != null){
+                                                io.emit(agenteNotif.usuario.usuario,objNotifComplet)
+                                            }                                                                                  
                                         } catch (errore) {
                                             console.log(errore)
-                                        }                                    
+                                        }
                                     }else{
                                         console.log("Socket no definido..")
                                     }                                   

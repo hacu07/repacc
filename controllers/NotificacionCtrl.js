@@ -2,8 +2,12 @@ const Notificacion = require("../models/notificacion")
 const TipoCtrl = require('../controllers/TipoCtrl')
 const Util = require('../controllers/Util')
 const AgenteCtrl = require('../controllers/AgenteCtrl')
+const NotificationPopulate = require("../populates/notification")
 //const EstadoCtrl = require('../controllers/EstadoCtrl')
 
+/******************************************+
+ * Realiza busqueda de notificaciones segun objeto "query" 
+ */
 async function find(query){
     let response = null
     //let estadoFalsaAlarma = await EstadoCtrl.buscarEstado(Util.ESTADO_REPORTE_FALSAALARMA)
@@ -13,116 +17,9 @@ async function find(query){
         const notifications = await Notificacion.find(query)
         .sort({createdAt: -1})
         .populate(
-            [
-                {
-                    path: 'reporte',                                         
-                    populate: [
-                        {
-                            path: 'usuarioReg',
-                            select: '_id qr correo nombre celular usuario foto rol tipoSangre munNotif munResid estado', 
-                            populate: [
-                                {
-                                    path: 'rol',
-                                    populate:{path: 'estado'}
-                                },
-                                {
-                                    path: 'estado'
-                                },
-                                {
-                                    path:'munNotif',
-                                    populate : [
-                                        {
-                                            path: 'departamento',
-                                            populate:  [
-                                                {                                
-                                                    path: 'pais',
-                                                    populate: 'estado'
-                                                },
-                                                {
-                                                    path: 'estado'
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            path: 'estado'
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            path : 'municipioReg',
-                            populate : [
-                                {
-                                    path: 'departamento',
-                                    populate:  [
-                                        {                                
-                                            path: 'pais',
-                                            populate: 'estado'
-                                        },
-                                        {
-                                            path: 'estado'
-                                        }
-                                    ]
-                                },
-                                {
-                                    path: 'estado'
-                                }
-                            ]
-                        },
-                        {
-                            path: 'estado'
-                        }
-                    ]
-                },
-                {
-                    path: 'involucrado',
-                    select: 'tipo placaqr usuaInvolucrado',
-                    populate : ([
-                        {
-                            path: 'tipo'
-                        },
-                        {
-                            path: 'usuaInvolucrado',
-                            select : '_id codRecuCon recibirNotif qr correo nombre celular usuario rol estado foto',
-                            populate: (
-                                [
-                                    {
-                                        path: 'rol',
-                                        populate:{path: 'estado'}
-                                    },
-                                    {
-                                        path: 'estado'
-                                    }
-                                ]
-                            )
-                        }
-                    ])
-                },
-                {
-                    path: 'tipo'
-                },
-                {
-                    path: 'usuario',
-                    select : '_id codRecuCon recibirNotif qr correo nombre celular usuario rol estado foto',
-                    populate: (
-                        [
-                            {
-                                path: 'rol',
-                                populate:{path: 'estado'}
-                            },
-                            {
-                                path: 'estado'
-                            }
-                        ]
-                    )
-                },
-                {
-                    path: 'rol',
-                    populate:{path: 'estado'}
-                }
-            ]
-        )      
+            NotificationPopulate.NotificationPopulate    
+        )
+                
         if(notifications.length > 0){
             response = notifications   
         }        
@@ -131,6 +28,28 @@ async function find(query){
     }
     
   
+    return response 
+}
+
+/******************************************+
+ * Realiza busqueda de notificacion segun objeto "query" 
+ */
+async function findOne(query){
+    let response = null  
+
+    try {
+        const notification = await Notificacion.findOne(query)        
+        .populate(
+            NotificationPopulate.NotificationPopulate    
+        )
+                
+        if(notification){
+            response = notification 
+        }        
+    } catch (error) {
+        //ignore this
+    }
+      
     return response 
 }
 
@@ -158,3 +77,5 @@ async function findUserNotif(body){
 }
 
 exports.findUserNotif = findUserNotif
+exports.find = find
+exports.findOne = findOne

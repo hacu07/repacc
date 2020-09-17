@@ -5,7 +5,7 @@ async function findById(idUsuario){
     var usuario = null
 
     try {
-        const objUsuario = await Usuario.findById(idUsuario, "_id codRecuCon recibirNotif qr correo nombre celular usuario rol estado foto")
+        const objUsuario = await Usuario.findById(idUsuario, "_id codRecuCon recibirNotif qr correo nombre celular usuario rol estado foto socketId")
                 .populate([
                     {
                         path: 'rol',
