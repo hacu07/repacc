@@ -1,6 +1,7 @@
 exports.NotificationPopulate = [
     {
-        path: 'reporte',                                         
+        path: 'reporte', 
+        select : '-agenteFalAlarm',                                        
         populate: [
             {
                 path: 'usuarioReg',

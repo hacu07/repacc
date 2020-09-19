@@ -7,6 +7,7 @@ const ReporteCtrl = require("../controllers/ReporteCtrl")
 const Util = require("../controllers/Util")
 const Involucrado = require("../models/involucrado")
 const Notificacion = require("../models/notificacion")
+const NotificacionCtrl = require("../controllers/NotificacionCtrl")
 const {app} = require("../app/app")
 /***************************************
  * Registra las placas, si encuentra que la placa esta asociada a un usuario
@@ -47,68 +48,69 @@ async function registrarInvolucrado(idReporte, placa){
                     estNotfEnviado != null && estNotfNoEnviado != null &&
                     usuarioInvolucrado != null && reporte != null){
 
-                        let msj = "REPACC: " + usuarioInvolucrado.nombre.substr(0,30).trim() + 
-                                " ha sido reportado en un evento de movilidad. Busca con codigo " + reporte.codigo
+                    let msj = "REPACC: " + usuarioInvolucrado.nombre.substr(0,30).trim() + 
+                            " ha sido reportado en un evento de movilidad. Busca con codigo " + reporte.codigo
 
 
-                        contactos.forEach(contacto => {
-                            // Obtiene info del usuario contacto
-                            UsuarioCtrl.findById(contacto.contacto._id)
-                                .then( usuarioContacto =>{
-                                    if(usuarioContacto != null){
-                                        // Registra la notificacion  
-                                                                                
-                                        let notificacionApp = new Notificacion({
-                                            reporte: idReporte,
-                                            involucrado: invSave._id,
-                                            mensaje: msj,
-                                            tipo:  tipoNotifApp._id,
-                                            usuario: usuarioContacto._id,
-                                            rol: usuarioContacto.rol._id,
-                                            estado:  estNotfEnviado    
-                                        })      
-                                        
-                                        notificacionApp.save()
-                                        
-                                        if(usuarioContacto.socketId != null && io != undefined){
-                                            try {                                            
-                                                console.log("socket de envio: " + usuarioContacto.usuario)                                            
-                                                io.emit(usuarioContacto.usuario,notificacionApp)                                        
-                                            } catch (errore) {
-                                                console.log(errore)
-                                            }                                    
-                                        }else{
-                                            console.log("Socket no definido..")
-                                        } 
-                                        
-                                        let notificacionSMS = new Notificacion({
-                                            reporte: idReporte,
-                                            involucrado: invSave._id,
-                                            mensaje: msj,
-                                            tipo: tipoNotifSMS._id ,
-                                            usuario: usuarioContacto._id,
-                                            rol: usuarioContacto.rol._id,
-                                            estado: estNotfNoEnviado     
-                                        })                                                  
-
-                                        notificacionSMS.save()                                                                                                                  
+                    for(const position in contactos) {
+                        const contacto = contactos[position]
+                        // Obtiene info del usuario contacto
+                        let usuarioContacto = await UsuarioCtrl.findById(contacto.contacto._id)
+                            
+                        if(usuarioContacto != null){
+                            // Registra la notificacion  
+                                                                    
+                            let notificacionApp = new Notificacion({
+                                reporte: idReporte,
+                                involucrado: invSave._id,
+                                mensaje: msj,
+                                tipo:  tipoNotifApp._id,
+                                usuario: usuarioContacto._id,
+                                rol: usuarioContacto.rol._id,
+                                estado:  estNotfEnviado    
+                            })      
+                            
+                            let notifSaved = await notificacionApp.save()
+                            
+                            if(usuarioContacto.socketId != null && io != undefined){
+                                try {                                            
+                                    // Obtiene el objeto completo de la notificacion
+                                    let objNotifComplet = await NotificacionCtrl.findOne({_id : notifSaved._id})                                           
+                                    
+                                    if(objNotifComplet != null){
+                                        console.log("involucrado: " + usuarioContacto.usuario)
+                                        io.emit(usuarioContacto.usuario,objNotifComplet)
                                     }
-                                })
-                                .catch()
-                        });                           
+                                } catch (errore) {
+                                    console.log(errore)
+                                }                                    
+                            }else{
+                                console.log("Socket no definido..")
+                            } 
+                            
+                            let notificacionSMS = new Notificacion({
+                                reporte: idReporte,
+                                involucrado: invSave._id,
+                                mensaje: msj,
+                                tipo: tipoNotifSMS._id ,
+                                usuario: usuarioContacto._id,
+                                rol: usuarioContacto.rol._id,
+                                estado: estNotfNoEnviado     
+                            })                                                  
+
+                            await notificacionSMS.save()                                                                                                                  
+                        }
+                    }                         
                 }
             }
         }        
 
     } catch (error) {
         //ignore
+        console.log(error)
     }
 }
 
-/*******************************************
- *  Funcion asincrona para registrar las notificaciones
- *  HAROLDC 07/06/2020
- */
 
 
 
