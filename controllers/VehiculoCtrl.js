@@ -2,19 +2,88 @@ const Vehiculo = require('../models/vehiculo')
 
 
 async function registrarVehiculo(objVehiculo){
-    var siRegistro = false
+    var objSaved = null
 
     try {
         const vehiculoSave = await objVehiculo.save()
 
         if(vehiculoSave){
-            siRegistro = true
+            objSaved = await buscarVehiculo(vehiculoSave._id)
         }
     } catch (error) {
         
     }
 
-    return siRegistro
+    return objSaved
+}
+
+async function actualizarVehiculo(objVehiculo){
+    let siActualizo = false
+
+    try {
+        const vehiculoUpdated = await Vehiculo.findByIdAndUpdate(
+            objVehiculo._id,
+            objVehiculo,
+            {
+                new: true
+            }
+        )
+
+        if(vehiculoUpdated){
+            siActualizo = true
+        }
+    } catch (error) {
+    }
+
+    return siActualizo
+}
+
+/**
+ * Busca los vehiculos registrados por un usuarios
+ * @param {*} idUsuario 
+ */
+async function buscarVehiculo(idVehiculo){
+    var vehiculo = null
+    
+    try {
+        vehiculo = await Vehiculo.findById({_id: idVehiculo}, '_id colores tipo esParticular modelo placa foto')
+        .populate([
+            {
+                path: 'tipo',
+                select: '_id tipo codigo nombre estado',
+                populate:[
+                    {
+                        path: 'estado',
+                        select: '_id codigo nombre tipo'
+                    }
+                ]
+            },
+            {
+                path: 'modelo',
+                select: '_id nombre marca estado',
+                populate: [
+                    {
+                        path: 'marca',
+                        select: '_id nombre estado ',
+                        populate: [
+                            {
+                                path: 'estado',
+                                select: '_id codigo nombre tipo'
+                            }
+                        ]
+                    },
+                    {
+                        path: 'estado',
+                        select: '_id codigo nombre tipo'
+                    }
+                ]
+            }
+        ])
+    } catch (error) {
+        
+    }
+
+    return vehiculo
 }
 
 /**
@@ -88,4 +157,5 @@ async function buscarVehiculoPorPlaca(placa){
 
 exports.buscarVehiculos = buscarVehiculos
 exports.registrarVehiculo = registrarVehiculo
+exports.actualizarVehiculo = actualizarVehiculo
 exports.buscarVehiculoPorPlaca = buscarVehiculoPorPlaca

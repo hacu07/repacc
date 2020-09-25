@@ -72,7 +72,9 @@ async function registrarInvolucrado(idReporte, placa){
                             
                             let notifSaved = await notificacionApp.save()
                             
-                            if(usuarioContacto.socketId != null && io != undefined){
+                            if(usuarioContacto.socketId != null &&
+                                usuarioContacto.socketId != undefined &&
+                                io != undefined){
                                 try {                                            
                                     // Obtiene el objeto completo de la notificacion
                                     let objNotifComplet = await NotificacionCtrl.findOne({_id : notifSaved._id})                                           
