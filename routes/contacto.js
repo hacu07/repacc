@@ -13,8 +13,11 @@ const { check, validationResult } = require('express-validator');
  /**
   * Busca contacto segun username
   */
- router.get('/buscarContacto/:username',
-    [check('username').trim().isString().notEmpty().isLength({min: 4, max: 16})],
+ router.get('/buscarContacto/:userId/:username',
+    [
+        check('username').trim().isString().notEmpty().isLength({min: 4, max: 16}),
+        check('userId').isMongoId() //User id who is doing request
+    ],
     async (req,res) =>{
         const errors = validationResult(req)
         
@@ -28,8 +31,9 @@ const { check, validationResult } = require('express-validator');
             );
         }
 
+        const userId = req.params.userId
         const username = req.params.username.toLowerCase()
-        const contactos = await ContactoCtrl.findContacts(username)
+        const contactos = await ContactoCtrl.findContacts(userId, username)
         var jsonReturn = null
 
         if(contactos == null){

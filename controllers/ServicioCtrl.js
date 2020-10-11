@@ -8,6 +8,7 @@ const AgenRepo = require("../models/agenRepo")
 const Notificacion = require("../models/notificacion")
 const NotificacionCtrl = require("../controllers/NotificacionCtrl")
 const {app} = require("../app/app")
+const Reporte = require("../models/reporte")
 
 /**
  * Una vez el reporte ha sido registrado, registra los servicios indicados por el usuario
@@ -55,104 +56,111 @@ async function reportarServiciosAgentes(reporte, objServicio){
         // Obtiene el servicio (Tipo)
         let objTipo = await TipoCtrl.findById(objServicio.tipo)
         const estNotifAct = await EstadoCtrl.buscarEstado(Util.ESTADO_SERVICIO_NOATENDIDO)        
-        if(objTipo != null && estNotifAct != null){        
-            let agentesDisp = await AgenteCtrl.obtenerAgentesDisponibles(reporte.municipioReg._id, objTipo.codigo)               
-            // Si encontro agentes disponibles en el municipio del reporte            
-            if(agentesDisp != null  && agentesDisp.length > 0){
-                
-                // Obtiene agente mas cercano al sitio del reporte
-                const agenteNotif = await obtenerAgenteNotif(reporte, agentesDisp)
-
-                if(agenteNotif != null){
-
-                    // Crea objeto AgenRepo y lo almacena
-                    const agenRepo = new AgenRepo({
-                        servicio: objServicio._id,
-                        agente: agenteNotif._id,
-                        estado: estNotifAct._id
-                    })
+        if(objTipo != null && estNotifAct != null){
+            
+            // Si el servicio es de tipo ambulancia se solicita el numero de agentes segun
+            // el numero de heridos reportados
+            let agentesNecesarios = objTipo.codigo == Util.SERVICIO_AMBULANCIA ? reporte.numHeridos : 1
+            for (let i = 1; i <= agentesNecesarios; i++) {                
+                let agentesDisp = await AgenteCtrl.obtenerAgentesDisponibles(reporte.municipioReg._id, objTipo.codigo)               
+                // Si encontro agentes disponibles en el municipio del reporte            
+                if(agentesDisp != null  && agentesDisp.length > 0){
                     
-                    const registro = await agenRepo.save()
-                    
-                    // Si registro el agente al servicio del reporte, 
-                    // realiza notificacion
-                    if(registro){
+                    // Obtiene agente mas cercano al sitio del reporte
+                    const agenteNotif = await obtenerAgenteNotif(reporte, agentesDisp)
 
-                        // Cambia propiedad del Agente a ocupado para que no le asignen mas reportes                                                
-                        agenteNotif.ocupado = true
-                        await AgenteCtrl.updateAgent(agenteNotif)
-                        
+                    if(agenteNotif != null){
 
-                        // Notifica al agente
-                        let tipoNotifApp = await TipoCtrl.buscarTipoSegunCodigo(Util.NOTIFICACION_APP)
-                        let tipoNotifSMS = await TipoCtrl.buscarTipoSegunCodigo(Util.NOTIFICACION_SMS)
-                        let estNotfEnviado = await EstadoCtrl.buscarEstado(Util.ESTADO_NOTIFICACION_ENVIADO)
-                        let estNotfNoEnviado = await EstadoCtrl.buscarEstado(Util.ESTADO_NOTIFICACION_NO_ENVIADO)
-                        let usuario = await UsuarioCtrl.findById(agenteNotif.usuario._id)
-                        if(tipoNotifApp != null && tipoNotifSMS != null && usuario != null &&
-                            estNotfEnviado != null && estNotfNoEnviado != null){
-                                let msj = "REPACC: ha sido reportado en un evento de movilidad. Busca con codigo " + 
-                                reporte.codigo
-
-                                let notificacionApp = new Notificacion({
-                                    reporte: reporte._id,                                
-                                    mensaje: msj,
-                                    tipo:  tipoNotifApp._id,
-                                    usuario: usuario._id,
-                                    rol: usuario.rol._id,
-                                    estado:  estNotfEnviado    
-                                })
-                                
-                                let objNotifAppSave = await notificacionApp.save()
-                            
-                                if(objNotifAppSave){
-                                    if(agenteNotif.usuario.socketId != null && io != undefined){
-                                        try {                                                   
-                                            // Obtiene el objeto completo de la notificacion
-                                            let objNotifComplet = await NotificacionCtrl.findOne({_id : objNotifAppSave._id})
-                                            if(objNotifComplet != null){
-                                                io.emit(agenteNotif.usuario.usuario,objNotifComplet)
-                                            }                                                                                  
-                                        } catch (errore) {
-                                            console.log(errore)
-                                        }
-                                    }else{
-                                        console.log("Socket no definido..")
-                                    }                                   
-                                }else{
-                                    console.log("no guardó notif.")
-                                }
-
-                                let notificacionSMS = new Notificacion({
-                                    reporte: reporte._id,                                
-                                    mensaje: msj,
-                                    tipo: tipoNotifSMS._id ,
-                                    usuario: usuario._id,
-                                    rol: usuario.rol._id,
-                                    estado: estNotfNoEnviado     
-                                })                                                  
-
-                                notificacionSMS.save() 
-                        }else{
-                            // No se logró registrar la notificacion.                            
-                        }
-                    }
-                                    
-                }
-            }else{
-                // Si no hay agentes, asigna el estado "NO DISPONIBLE"
-                let estNoDisp = await EstadoCtrl.buscarEstado(Util.ESTADO_SERVICIO_NODISPONIBLE)
-
-                if(estNoDisp){
-                    // cambia el estado del servicio a "NO DISPONIBLE"
-                    let serviceUpdate = await Servicio.findByIdAndUpdate(objServicio._id,
-                        {
-                            estado: estNoDisp._id
+                        // Crea objeto AgenRepo y lo almacena
+                        const agenRepo = new AgenRepo({
+                            servicio: objServicio._id,
+                            agente: agenteNotif._id,
+                            estado: estNotifAct._id
                         })
+                        
+                        const registro = await agenRepo.save()
+                        
+                        // Si registro el agente al servicio del reporte, 
+                        // realiza notificacion
+                        if(registro){
 
-                    objTipo = estNoDisp
+                            // Cambia propiedad del Agente a ocupado para que no le asignen mas reportes                                                
+                            agenteNotif.ocupado = true
+                            await AgenteCtrl.updateAgent(agenteNotif)
+                            
+
+                            // Notifica al agente
+                            let tipoNotifApp = await TipoCtrl.buscarTipoSegunCodigo(Util.NOTIFICACION_APP)
+                            let tipoNotifSMS = await TipoCtrl.buscarTipoSegunCodigo(Util.NOTIFICACION_SMS)
+                            let estNotfEnviado = await EstadoCtrl.buscarEstado(Util.ESTADO_NOTIFICACION_ENVIADO)
+                            let estNotfNoEnviado = await EstadoCtrl.buscarEstado(Util.ESTADO_NOTIFICACION_NO_ENVIADO)
+                            let usuario = await UsuarioCtrl.findById(agenteNotif.usuario._id)
+                            if(tipoNotifApp != null && tipoNotifSMS != null && usuario != null &&
+                                estNotfEnviado != null && estNotfNoEnviado != null){
+                                    let msj = "REPACC: ha sido reportado en un evento de movilidad. Busca con codigo " + 
+                                    reporte.codigo
+
+                                    let notificacionApp = new Notificacion({
+                                        reporte: reporte._id,                                
+                                        mensaje: msj,
+                                        tipo:  tipoNotifApp._id,
+                                        usuario: usuario._id,
+                                        rol: usuario.rol._id,
+                                        estado:  estNotfEnviado    
+                                    })
+                                    
+                                    let objNotifAppSave = await notificacionApp.save()
+                                
+                                    if(objNotifAppSave){
+                                        if(agenteNotif.usuario.socketId != null && io != undefined){
+                                            try {                                                   
+                                                // Obtiene el objeto completo de la notificacion
+                                                let objNotifComplet = await NotificacionCtrl.findOne({_id : objNotifAppSave._id})
+                                                if(objNotifComplet != null){
+                                                    io.emit(agenteNotif.usuario.usuario,objNotifComplet)
+                                                }                                                                                  
+                                            } catch (errore) {
+                                                console.log(errore)
+                                            }
+                                        }else{
+                                            console.log("Socket no definido..")
+                                        }                                   
+                                    }else{
+                                        console.log("no guardó notif.")
+                                    }
+
+                                    let notificacionSMS = new Notificacion({
+                                        reporte: reporte._id,                                
+                                        mensaje: msj,
+                                        tipo: tipoNotifSMS._id ,
+                                        usuario: usuario._id,
+                                        rol: usuario.rol._id,
+                                        estado: estNotfNoEnviado     
+                                    })                                                  
+
+                                    notificacionSMS.save() 
+                            }else{
+                                // No se logró registrar la notificacion.                            
+                            }
+                        }
+                                        
+                    }
+                }else{
+                    // Si no hay agentes, asigna el estado "NO DISPONIBLE"
+                    let estNoDisp = await EstadoCtrl.buscarEstado(Util.ESTADO_SERVICIO_NODISPONIBLE)
+
+                    if(estNoDisp){
+                        // cambia el estado del servicio a "NO DISPONIBLE"
+                        let serviceUpdate = await Servicio.findByIdAndUpdate(objServicio._id,
+                            {
+                                estado: estNoDisp._id
+                            })
+
+                        objTipo = estNoDisp
+                    }
                 }
             }
+
         }
     } catch (error) {
         console.log("error en ServicioCtrl.js -> reportarServiciosAgentes()")

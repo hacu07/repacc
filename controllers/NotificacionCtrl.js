@@ -1,4 +1,5 @@
 const Notificacion = require("../models/notificacion")
+const ServicioCtrl = require("../controllers/ServicioCtrl")
 const TipoCtrl = require('../controllers/TipoCtrl')
 const Util = require('../controllers/Util')
 const AgenteCtrl = require('../controllers/AgenteCtrl')
@@ -21,7 +22,16 @@ async function find(query){
         )
                 
         if(notifications.length > 0){
-            response = notifications   
+            response = notifications
+
+            //Obtiene servicios de los reportes
+            for (let i = 0; i < array.length; i++) {             
+                
+                let serviciosSolicitados = await ServicioCtrl.getServicesByReportId(notifications[i].reporte._id)
+                if(serviciosSolicitados != null){
+                    notifications[i].reporte.serviciosSolicitados = serviciosSolicitados
+                }
+            }        
         }        
     } catch (error) {
         //ignore
@@ -45,6 +55,12 @@ async function findOne(query){
                 
         if(notification){
             response = notification 
+
+            //Obtiene servicios del reporte
+            let serviciosSolicitados = await ServicioCtrl.getServicesByReportId(response.reporte._id)
+            if(serviciosSolicitados != null){
+                response.reporte.serviciosSolicitados = serviciosSolicitados
+            }
         }        
     } catch (error) {
         //ignore this
@@ -62,6 +78,7 @@ async function findUserNotif(body){
         let response = await find({usuario: body._id, tipo: tipoNotif._id})        
         if(response != null){
             notifications = response
+            
 
             notifSinFalsaAlarma = await notifications.filter(notificacion => notificacion.reporte.esFalAlarm == false)                        
 
