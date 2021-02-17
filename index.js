@@ -50,7 +50,9 @@ app.use('/api/entidad/', entidad)
 app.use('/api/agente/', agente)
 app.use('/api/notificacion/', notificacion)
 
-const SocketIO = require('socket.io')
+// Se usa para no actualizar cada cierto tiempo los usuarios conectados
+//({transports: ['websocket'], upgrade: false});
+const SocketIO = require('socket.io')({transports: ['websocket'], upgrade: false});
 const io = SocketIO.listen(server)
 
 mongoose.connect('mongodb://localhost/repaccdb',{useNewUrlParser:true, useFindAndModify:false, useCreateIndex: true})    
